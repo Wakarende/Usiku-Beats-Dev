@@ -1,0 +1,35 @@
+{
+    "name": "usiku-beats",
+    "short_name": "usiku-beats-APP",
+    "icons": [
+        {
+            "src": "android-chrome-192x192.png?v=2",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "android-chrome-512x512.png?v=2",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "android-chrome-192x192-full.png?v=2",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "android-chrome-512x512-full.png?v=2",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "theme_color": "#fe9225",
+    "background_color": "#fe9225",
+    "start_url": "/usiku-beats",
+    "display": "standalone",
+    "orientation": "portrait"
+}

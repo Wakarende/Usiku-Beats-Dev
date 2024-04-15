@@ -1,0 +1,135 @@
+{
+    "id": "9a7bde81-ac9d-4b8a-b504-38804a616078",
+    "sceneType": "SCENE",
+    "settings": {
+        "preloadMethodName": "editorPreload",
+        "preloadPackFiles": [
+            "jnj-2/assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Preload",
+        "borderWidth": 360,
+        "borderHeight": 640
+    },
+    "displayList": [
+        {
+            "type": "Image",
+            "id": "763e2f23-e806-4dc3-ab71-c7cfbdc03cd2",
+            "label": "logos_background",
+            "components": [],
+            "texture": {
+                "key": "logos_background"
+            },
+            "x": 180,
+            "y": 320
+        },
+        {
+            "type": "Image",
+            "id": "b833f09e-7a40-44fe-813e-cc5df83f5166",
+            "label": "loading",
+            "scope": "CLASS",
+            "components": [],
+            "texture": {
+                "key": "beat_meter_empty"
+            },
+            "x": 115,
+            "y": 533,
+            "originX": 0
+        },
+        {
+            "type": "Text",
+            "id": "922811f5-0399-4d82-8a96-f04be55109bb",
+            "label": "percentage",
+            "scope": "CLASS",
+            "components": [],
+            "x": 180,
+            "y": 553,
+            "originX": 0.5,
+            "originY": 0.5,
+            "visible": false,
+            "text": "0%",
+            "align": "center",
+            "fontFamily": "DINPro-Medium",
+            "fontSize": "15px"
+        },
+        {
+            "type": "Text",
+            "id": "0876d0a2-87ba-4346-92f2-9066cffa4584",
+            "label": "current_asset",
+            "scope": "CLASS",
+            "components": [],
+            "x": 180,
+            "y": 603,
+            "originX": 0.5,
+            "originY": 0.5,
+            "visible": false,
+            "text": "null",
+            "align": "center",
+            "fontSize": "13px"
+        },
+        {
+            "type": "Text",
+            "id": "a7f0cee9-a906-4168-977d-905941dd17bc",
+            "label": "loading_txt",
+            "scope": "CLASS",
+            "components": [],
+            "x": 180,
+            "y": 497,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "LOADING",
+            "fontFamily": "DINPro",
+            "fontSize": "15px"
+        },
+        {
+            "type": "Image",
+            "id": "72757b7d-0c5f-417a-8e53-13e1700832e2",
+            "label": "beats_logo",
+            "components": [],
+            "texture": {
+                "key": "beats_logo"
+            },
+            "x": 173,
+            "y": 245,
+            "scaleX": 0.4,
+            "scaleY": 0.4
+        },
+        {
+            "type": "Image",
+            "id": "0aea47d6-f20f-4c47-86e9-e004a402b558",
+            "label": "play_button",
+            "scope": "CLASS",
+            "components": [],
+            "texture": {
+                "key": "play_button"
+            },
+            "x": 180,
+            "y": 522,
+            "scaleX": 0.6,
+            "scaleY": 0.6,
+            "visible": false
+        },
+        {
+            "type": "Text",
+            "id": "4e2fa6c9-8320-49c8-ba8d-21ca4b013444",
+            "label": "play_text",
+            "scope": "CLASS",
+            "components": [],
+            "x": 180,
+            "y": 521.9580186429495,
+            "originX": 0.5,
+            "originY": 0.5,
+            "visible": false,
+            "text": "LET'S GO!",
+            "fontFamily": "DINPro",
+            "fontSize": "15px"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor 2D - Scene Editor",
+        "url": "https://phasereditor2d.com",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 3
+    }
+}
