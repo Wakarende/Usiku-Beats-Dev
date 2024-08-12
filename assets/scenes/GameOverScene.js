@@ -262,18 +262,20 @@ class GameOverScene extends Phaser.Scene {
   setStars(score) {
     let fullStarsCount = 0;
 
-    if (score < 20000) {
-      fullStarsCount = 1;
-    } else if (score >= 20000 && score < 50000) {
-      fullStarsCount = 2;
-    } else if (score >= 50000 && score < 80000) {
-      fullStarsCount = 3;
-    } else if (score >= 80000 && score < 95000) {
-      fullStarsCount = 4;
-    } else if (score > 95000) {
-      fullStarsCount = 5;
-    }
 
+    if (score < 5000) {
+      fullStarsCount = 1;
+    } else if (score >= 5000 && score < 10000) {
+      fullStarsCount = 2;
+    } else if (score >= 10000 && score < 15000) {
+      fullStarsCount = 3;
+    } else if (score >= 15000 && score < 20000) {
+      fullStarsCount = 4;
+    } else if (score >= 25000) {
+      fullStarsCount = 5;
+    } else {
+      fullStarsCount = 0; // Consider handling unexpected cases
+    }
     let starSound = this.sound.add('Star_Reward_Sfx');
 
     this.stars.forEach((star, index) => {

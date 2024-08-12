@@ -1,9 +1,16 @@
+// You can write more code here
+
+/* START OF COMPILED CODE */
+
 class Level extends Phaser.Scene {
   constructor() {
     super("Level");
+
+    /* START-USER-CTR-CODE */
+    // Write your code here.
+    /* END-USER-CTR-CODE */
   }
 
-  //#region COMPILED CODE
   /** @returns {void} */
   editorCreate() {
     // gameplay_bg
@@ -84,7 +91,7 @@ class Level extends Phaser.Scene {
     song_complete_text.visible = false;
 
     // song
-    const song = this.add.text(180, 252, "", {});
+    const song = this.add.text(180, 196, "", {});
     song.setOrigin(0.5, 0.5);
     song.text = "SONG";
     song.setStyle({
@@ -97,7 +104,7 @@ class Level extends Phaser.Scene {
     song_complete_text.add(song);
 
     // complete
-    const complete = this.add.text(180, 287, "", {});
+    const complete = this.add.text(180, 231, "", {});
     complete.setOrigin(0.5, 0.5);
     complete.text = "COMPLETE";
     complete.setStyle({
@@ -108,12 +115,49 @@ class Level extends Phaser.Scene {
     });
     song_complete_text.add(complete);
 
+    // youve_earned
+    const youve_earned = this.add.text(180, 304, "", {});
+    youve_earned.setOrigin(0.5, 0.5);
+    youve_earned.text = "You've Earned ";
+    youve_earned.setStyle({
+      color: "#381304ff",
+      fontFamily: "Righteous-Regular",
+      fontSize: "30px",
+      stroke: "#773d26ff",
+    });
+    song_complete_text.add(youve_earned);
+
+    // disc_number_earned
+    const disc_number_earned = this.add.text(180, 364.88365496112675, "", {});
+    disc_number_earned.setOrigin(0.5, 0.5);
+    disc_number_earned.text = "30";
+    disc_number_earned.setStyle({
+      color: "#381304ff",
+      fontFamily: "Righteous-Regular",
+      fontSize: "55px",
+      fontStyle: "bold",
+      stroke: "#773d26ff",
+    });
+    song_complete_text.add(disc_number_earned);
+
+    // discs
+    const discs = this.add.text(180, 418.009920694199, "", {});
+    discs.setOrigin(0.5, 0.5);
+    discs.text = "Discs";
+    discs.setStyle({
+      color: "#381304ff",
+      fontFamily: "Righteous-Regular",
+      fontSize: "30px",
+      stroke: "#773d26ff",
+    });
+    song_complete_text.add(discs);
+
     // beat_missed_text
     const beat_missed_text = this.add.layer();
     beat_missed_text.visible = false;
 
     // beat
-    const beat = this.add.text(180, 252, "", {});
+    const beat = this.add.text(180, 177, "", {});
     beat.setOrigin(0.5, 0.5);
     beat.text = "BEAT";
     beat.setStyle({
@@ -126,7 +170,7 @@ class Level extends Phaser.Scene {
     beat_missed_text.add(beat);
 
     // missed
-    const missed = this.add.text(180, 287, "", {});
+    const missed = this.add.text(180, 212, "", {});
     missed.setOrigin(0.5, 0.5);
     missed.text = "MISSED";
     missed.setStyle({
@@ -136,6 +180,32 @@ class Level extends Phaser.Scene {
       stroke: "#666363ff",
     });
     beat_missed_text.add(missed);
+
+    // continue_button
+    const continue_button = this.add.image(180, 397, "play_button");
+    continue_button.scaleX = 0.8;
+    continue_button.scaleY = 0.8;
+    beat_missed_text.add(continue_button);
+
+    // continue_text
+    const continue_text = this.add.text(180, 397, "", {});
+    continue_text.setOrigin(0.5, 0.5);
+    continue_text.text = "CONTINUE";
+    continue_text.setStyle({ fontFamily: "DINPro", fontSize: "22px" });
+    beat_missed_text.add(continue_text);
+
+    // quit_button
+    const quit_button = this.add.image(180, 317, "play_button");
+    quit_button.scaleX = 0.8;
+    quit_button.scaleY = 0.8;
+    beat_missed_text.add(quit_button);
+
+    // quit_text
+    const quit_text = this.add.text(180, 317, "", {});
+    quit_text.setOrigin(0.5, 0.5);
+    quit_text.text = "QUIT";
+    quit_text.setStyle({ fontFamily: "DINPro", fontSize: "22px" });
+    beat_missed_text.add(quit_text);
 
     // streak_popup
     const streak_popup = this.add.container(0, 0);
@@ -170,7 +240,6 @@ class Level extends Phaser.Scene {
     // lists
     const ui_layer = [
       multiplier_text,
-      pause_btn,
       score_text,
       song_name_text,
       artist_text,
@@ -189,7 +258,12 @@ class Level extends Phaser.Scene {
     this.feedback_text = feedback_text;
     this.overlay = overlay;
     this.song_complete_text = song_complete_text;
+    this.disc_number_earned = disc_number_earned;
     this.beat_missed_text = beat_missed_text;
+    this.continue_button = continue_button;
+    this.continue_text = continue_text;
+    this.quit_button = quit_button;
+    this.quit_text = quit_text;
     this.streak_popup = streak_popup;
     this.streak_text = streak_text;
     this.ui_layer = ui_layer;
@@ -221,8 +295,18 @@ class Level extends Phaser.Scene {
   overlay;
   /** @type {Phaser.GameObjects.Layer} */
   song_complete_text;
+  /** @type {Phaser.GameObjects.Text} */
+  disc_number_earned;
   /** @type {Phaser.GameObjects.Layer} */
   beat_missed_text;
+  /** @type {Phaser.GameObjects.Image} */
+  continue_button;
+  /** @type {Phaser.GameObjects.Text} */
+  continue_text;
+  /** @type {Phaser.GameObjects.Image} */
+  quit_button;
+  /** @type {Phaser.GameObjects.Text} */
+  quit_text;
   /** @type {Phaser.GameObjects.Container} */
   streak_popup;
   /** @type {Phaser.GameObjects.Text} */
@@ -230,9 +314,9 @@ class Level extends Phaser.Scene {
   /** @type {Array<Phaser.GameObjects.Text|Phaser.GameObjects.Image>} */
   ui_layer;
 
-  //#endregion
+  /* START-USER-CODE */
 
-  //#region USER CODE
+  // Write your code here
 
   init(data) {
     this.midi = data.midi;
@@ -258,7 +342,6 @@ class Level extends Phaser.Scene {
   create() {
     console.log("Level.js create()");
     this.editorCreate();
-    // background_music.stop()
 
     this.soundTracker = 0;
 
@@ -272,11 +355,6 @@ class Level extends Phaser.Scene {
     this.score = 0;
     this.scoreDisplay = 0;
 
-    // Drum time control
-    // Time it takes to get from the creation point to the target. This can be altered during the level
-    // to increase the speed of the tiles to add a difficulty level aspect if required
-    this.tileDuration = 4;
-    // This is used to multiply the screen height to get the position the drum tile is heading towards
     this.tileTarget = 0.82;
 
     this.playSong = false;
@@ -290,7 +368,6 @@ class Level extends Phaser.Scene {
     this.frameTime = 0;
     this.fps;
 
-    /** Screen width, height, and Center x, y */
     this.artist = this.track.artist_name;
     this.songItem = this.track.song_name;
     this.screenWidth = this.cameras.main.width;
@@ -299,29 +376,33 @@ class Level extends Phaser.Scene {
     this.screenCenterY = this.cameras.main.worldView.y + this.screenHeight / 2;
 
     this.soundMarkers = [];
-    // this.children = [];
+
+    this.tileDuration = this.midi.tracks[0].notes[0].velocity * 5 || 1.4;
 
     this.midi.tracks.forEach((track) => {
-      /** Drum trigger notes array from midi - filter out other notes just in case **/
-      // Currently set to octave 2 as the sg_test audio is using the different midi standard
       const notes = track.notes;
 
-      
       notes.forEach((note, idx) => {
         if ((note.name == "F#3") | (note.name == "G#3") | (note.name == "A#3"))
           this.soundMarkers.push({
             name: `"marker_${idx}"`,
+            velocity: note.velocity,
             start: note.time,
             path: note.name,
-            duration: note.duration, // not used currently
+            duration: note.duration,
             config: { loop: false },
           });
       });
     });
 
-    // console.log("markers", this.soundMarkers);
-
-    this.beatScore = this.maxSongScore / this.soundMarkers.length;
+    this.totalTiles = this.soundMarkers.length;
+    this.streakThreshold = 10;
+    this.baseScore =
+      this.maxSongScore /
+      ((this.streakThreshold * (this.streakThreshold + 1)) / 2 +
+        (this.totalTiles - this.streakThreshold) * 5);
+    this.currentMultiplier = 1;
+    this.progress = 0;
 
     this.countDown();
 
@@ -330,7 +411,6 @@ class Level extends Phaser.Scene {
     });
 
     this.song_name_text.setText(this.songItem);
-
     this.artist_text.setText(this.artist.toUpperCase());
 
     this.pause_btn.on("pointerup", () => {
@@ -361,7 +441,6 @@ class Level extends Phaser.Scene {
         lifespan: 750,
         speed: { min: 100, max: 150 },
         scale: { start: 0.5, end: 0 },
-        // gravityY: 150,
         blendMode: "ADD",
         emitting: false,
       })
@@ -376,14 +455,12 @@ class Level extends Phaser.Scene {
           lifespan: 750,
           speed: { min: 50, max: 100 },
           scale: { start: 0.5, end: 0 },
-          // gravityY: 150,
           blendMode: "ADD",
           emitting: false,
         }
       )
       .setDepth(10);
 
-    // TODO debug line, please disable
     let rect = this.add
       .rectangle(
         this.screenCenterX,
@@ -408,45 +485,35 @@ class Level extends Phaser.Scene {
 
   update(time, delta) {
     if (!this.tileGroup) {
-      // console.warn("Tile group not initialized");
       return;
     }
-    // Smoothed frame time + fps conversion for performance throttles
     this.frameTime = this.frameTime * 0.99 + delta * 0.01;
     this.fps = ((1 / this.frameTime) * 1000).toFixed(1);
     this.fps_text.text = this.fps;
     this.lowFpsMode = this.fps < 30 ? true : false;
 
-    // Lerp score when needed
     if (Math.abs(this.scoreDisplay - this.score) > 1) {
-      if (this.lowFpsMode) {
-        this.scoreDisplay = this.score;
-      } else {
-        this.scoreDisplay = Phaser.Math.Linear(
-          this.scoreDisplay,
-          this.score,
-          0.1
-        );
-      }
+      this.scoreDisplay = Phaser.Math.Linear(
+        this.scoreDisplay,
+        this.score,
+        0.1
+      );
       this.score_text.setText(`${Math.trunc(this.scoreDisplay)}`);
     }
 
-    // Seek is the position in the track, tile position is locked to this
     let seek = this.music?.seek;
 
     if (seek >= 0) {
-      // create next "drum" far enough in advance to get to the target on the beat
-      if (seek + this.tileDuration >= this.soundMarkers[0].start) {
-        // pop off next marker in the array and make a tile ready for lerping
+      if (
+        this.soundMarkers.length > 0 &&
+        seek + this.tileDuration >= this.soundMarkers[0].start
+      ) {
         var marker = this.soundMarkers.shift();
         this.creatOneDrum(marker);
       }
 
       this.tileGroup.getChildren().forEach((tile) => {
-        if (tile.swiped) return; // use return not continue in a foreach lambda
-        // lerp tiles downwards from 0 towards the "percentage of screen height" target.
-        // at 1 this will be bang on the target and will continue down past the target and off the screen as
-        // the lerp goes over 1.
+        if (tile.swiped || tile.held) return;
 
         tile.lerp = Math.max(
           0,
@@ -456,9 +523,6 @@ class Level extends Phaser.Scene {
         tile.setY(
           Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp)
         );
-
-        // The Math.max up there ^ is so we can debug tile creation timing. The tile creation and
-        // it's position are completely uncoupled now
 
         tile.setAlpha(tile.lerp);
 
@@ -471,7 +535,8 @@ class Level extends Phaser.Scene {
 
   creatOneDrum(marker) {
     let tilePath = marker.path;
-    /** Create a tile / drum **/
+    let velocity = marker.velocity;
+    let duration = marker.duration;
 
     let tile = this.tileGroup
       .create(0, 0, "beats2")
@@ -482,10 +547,10 @@ class Level extends Phaser.Scene {
 
     tile.start = marker.start;
     tile.body.immovable = true;
-    this.placeTile(tile, tilePath);
+    this.placeTile(tile, tilePath, velocity, duration);
   }
 
-  placeTile(tile, tilePath) {
+  placeTile(tile, tilePath, velocity, duration) {
     let left = (this.screenWidth / 6) * 1;
     let middle = (this.screenWidth / 6) * 3;
     let right = (this.screenWidth / 6) * 5;
@@ -494,7 +559,6 @@ class Level extends Phaser.Scene {
       velocityThreshold: 500,
     };
 
-    // Currently set to octave 2 as the sg_test audio is using the different midi standard
     let position;
     switch (tilePath) {
       case "A#3":
@@ -510,7 +574,6 @@ class Level extends Phaser.Scene {
         tile.setX(right);
         break;
       default:
-        // Handle default case if necessary
         break;
     }
 
@@ -518,44 +581,123 @@ class Level extends Phaser.Scene {
 
     tile.swiped = false;
 
-    let random = Phaser.Math.Between(100, 1000);
-    if (random === 10) {
-      // Assign a random swipe texture based on the lane
-      const swipeTextures = this.getSwipeTextures(position);
-      const randomTexture = Phaser.Utils.Array.GetRandom(swipeTextures);
-      tile.setTexture(randomTexture);
+    let swipe = this.rexGestures.add.swipe(tile, swipeConfig);
 
-      let swipe = this.rexGestures.add.swipe(tile, swipeConfig);
-      swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-        this.handleSwipe(tile, swipe);
-      });
-    } else {
-      tile.on("pointerup", () => {
-        this.tileClicked = false;
-      });
-      tile.on("pointerdown", () => {
-        this.onClickInstrument(tile);
-      });
+    switch (velocity) {
+      case 0.23622047244094488:
+        tile.setTexture("swipe_up");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.up) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+
+      case 0.3937007874015748:
+        tile.setTexture("swipe_right");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.right) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+      case 0.7086614173228346:
+        tile.setTexture("swipe_left");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.left) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+      case 0.5511811023622047:
+        tile.setTexture("swipe_down");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.down) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+      case 0.007874015748031496:
+        this.handleHeldTile(tile, duration);
+        break;
+
+      default:
+        tile.on("pointerup", () => {
+          this.tileClicked = false;
+        });
+        tile.on("pointerdown", () => {
+          this.onClickInstrument(tile);
+        });
+        break;
     }
+  }
+
+  calculateHeldTileScaleFactor(duration, tileDuration) {
+    let slope = 1.5;
+    let intercept = -1.4;
+
+    let normalizationFactor = slope * tileDuration + intercept;
+
+    let heldTileScaleFactor =
+      1 + Math.log1p(duration) / Math.log1p(normalizationFactor);
+    return heldTileScaleFactor;
+  }
+
+  handleHeldTile(tile, duration) {
+    let heldTileScaleFactor = this.calculateHeldTileScaleFactor(
+      duration,
+      this.tileDuration
+    );
+
+    let initialScaleY = heldTileScaleFactor * duration;
+
+    tile.setScale(1, initialScaleY);
+
+    let originalHeight = tile.height;
+    let scaledHeight = tile.displayHeight;
+    let originalOriginY = tile.originY;
+
+    let newOriginY = (originalOriginY * originalHeight) / scaledHeight;
+
+    newOriginY = 1 - newOriginY;
+    tile.setOrigin(0.5, newOriginY);
+
+    let initialHeight = tile.displayHeight;
+    let clicked = false;
+
+    tile.on("pointerdown", () => {
+      tile.held = true;
+
+      this.tweens.add({
+        targets: tile,
+        scaleY: 1,
+        ease: "Linear",
+        duration: duration * 1000,
+        onComplete: () => {
+          if (!clicked) {
+            clicked = true;
+            this.onClickInstrument(tile, false, true);
+          }
+        },
+      });
+    });
+
+    tile.on("pointerup", () => {
+      if (!clicked) {
+        clicked = true;
+        this.onClickInstrument(tile, false, true);
+      }
+    });
   }
 
   checkOverlap(tile) {
     if (tile.y >= this.screenHeight) {
       tile.destroy();
-
-      // let children = this.drumGroup.getChildren();
-      // children.forEach((tile) => {
-      //   tile.destroy();
-      // });
-
-      // this.overlay.setVisible(true);
-      // this.beat_missed_text.setVisible(true).setDepth(6);
-      // setTimeout(() => {
-      //   this.overlay.setVisible(false);
-      //   this.beat_missed_text.setVisible(false);
-      // }, 500);
-
-      // this.gameOver();
+      this.beatMissedDisplay();
     }
   }
 
@@ -573,59 +715,38 @@ class Level extends Phaser.Scene {
     });
 
     this.music.on("complete", () => {
-      /** Stop the sound 2 */
-      this.matchedMarkerTracker = [];
-
-      this.overlay.setVisible(true);
-      this.song_complete_text.setVisible(true).setDepth(6);
-
-      setTimeout(() => {
-        this.overlay.setVisible(false);
-        this.song_complete_text.setVisible(false);
-
-        this.music.stop();
-        this.matchedMarkerTracker = [];
-        clearInterval(this.globalInterval);
-
-        this.track.current_score = this.score;
-        this.track.midi = this.midi;
-
-        // Get current scores object from localStorage
-        let scores = JSON.parse(localStorage.getItem("scores") || "{}");
-        // Update the score for the current song
-        scores[this.track.song_name] = this.score;
-        // Save the updated scores object back to localStorage
-        localStorage.setItem("scores", JSON.stringify(scores));
-
-        this.cleanUp();
-        this.scene.stop("Level");
-        this.scene.start("GameOverScene", { track: this.track });
-      }, 2000);
+      this.songComplete();
     });
   }
 
-  getSwipeTextures(position) {
-    if (position === "middle") {
-      return ["swipe_left", "swipe_right"];
-    } else {
-      return ["swipe_up", "swipe_down"];
-    }
+  songComplete() {
+    this.music.pause();
+    this.scene.pause();
+
+    this.matchedMarkerTracker = [];
+
+    this.overlay.setVisible(true);
+    this.song_complete_text.setVisible(true).setDepth(6);
+
+    setTimeout(() => {
+      this.overlay.setVisible(false);
+      this.song_complete_text.setVisible(false);
+
+      let user_data = JSON.parse(localStorage.getItem("user_data"));
+      console.log("here");
+      user_data.profile.player.total_discs += 30;
+      this.game.events.emit("updateUserEvent", { data: user_data });
+
+      this.gameOver();
+    }, 4000);
   }
 
   handleSwipe(tile, swipe) {
-    console.log("swiped", swipe);
-
     tile.swiped = true;
 
-    // run the clicked function now, not after the tween to make it feel more responsive
     this.onClickInstrument(tile, true);
 
     let movementDistance = 25;
-
-    if (navigator.vibrate) {
-      // Vibration pattern: vibrate for 200ms
-      navigator.vibrate(100);
-    }
 
     let tweenConfig = {
       duration: 150,
@@ -635,19 +756,24 @@ class Level extends Phaser.Scene {
       },
     };
 
+    tile.setTexture("arrow");
     if (swipe.up) {
+      tile.angle -= 90;
+
       this.tweens.add({
         targets: tile,
         y: tile.y - movementDistance * 2,
         ...tweenConfig,
       });
     } else if (swipe.down) {
+      tile.angle += 90;
       this.tweens.add({
         targets: tile,
         y: tile.y + movementDistance * 4,
         ...tweenConfig,
       });
     } else if (swipe.left) {
+      tile.angle -= 180;
       this.tweens.add({
         targets: tile,
         x: tile.x - movementDistance,
@@ -663,109 +789,95 @@ class Level extends Phaser.Scene {
   }
 
   resetStreak() {
-    // console.log("Reset Streak")
-    if (this.multiplier >= 2) {
+    if (this.currentMultiplier >= 2) {
       this.streak_text.setText("STREAK LOST");
       this.streak_popup.setVisible(true).setDepth(6);
       setTimeout(() => {
         this.streak_popup.setVisible(false);
       }, 700);
     }
+    this.currentMultiplier = 1;
+    this.progress = 0;
   }
 
   streakDisplay() {
-    // setTimeout(() => {
-    //   this.streak_popup.setVisible(false);
-    // }, 700);
-
     this.multiplier_emitter.explode(this.lowFpsMode ? 10 : 20);
 
-    // initial position outside of screen to the left
     this.streak_popup.x = -180;
-    // make it visible
     this.streak_popup.setVisible(true).setDepth(6);
     this.tweens.killTweensOf(this.streak_popup);
-    // create a tween to slide the streak_popup from the left to the middle of the screen
     var tweenIn = this.tweens.add({
       targets: this.streak_popup,
-      x: 0, // middle of the screen
+      x: 0,
       ease: "Power1",
-      duration: 500, // adjust as needed
+      duration: 500,
       onComplete: () => {
-        // delay before sliding off to the right
         setTimeout(() => {
           var tweenOut = this.tweens.add({
             targets: this.streak_popup,
-            x: 360, // off the screen to the right
+            x: 360,
             ease: "Power1",
-            duration: 500, // adjust as needed
+            duration: 500,
             onComplete: () => {
-              // make it invisible
               this.streak_popup.setVisible(false);
-              // reset its position
               this.streak_popup.x = -this.streak_popup.width;
             },
           });
-        }, 700); // visible for 700 ms
+        }, 700);
       },
     });
   }
 
   beatMissedDisplay() {
-    this.overlay.setVisible(true);
-    this.beat_missed_text.setVisible(true).setDepth(6);
-    setTimeout(() => {
-      this.overlay.setVisible(false);
-      this.beat_missed_text.setVisible(false);
-    }, 500);
+    this.music.pause();
+    this.scene.pause();
+
+    let children = this.tileGroup.getChildren();
+    let tilesToRemove = children.slice(0, 3);
+    tilesToRemove.forEach((tile) => tile.destroy());
+
+    this.scene.bringToTop("BeatMissed");
+    this.scene.launch("BeatMissed");
   }
 
-  onClickInstrument(tile, swiped = false) {
+  onClickInstrument(tile, swiped = false, held = false) {
     let accuracy = Math.abs(tile.lerp - 1);
 
-    // console.log(accuracy);
+    if (held) {
+      accuracy -= 0.04;
+    }
 
     if (navigator.vibrate) {
-      // Vibration pattern: vibrate for 200ms
       navigator.vibrate(100);
     }
 
     this.tileClicked = true;
     let perfect_plus = false;
-    var tile_score;
+    let tile_score = 0;
 
-    // If a score is going to be awarded pop the particles, saves repeating it in the swtich
-    if (accuracy <= 0.055) {
-      this.score_emitter.explode(this.lowFpsMode ? 20 : 50);
-    }
-
-    // Base reaction to click on how accurate the timing was. 0 = best
     switch (true) {
       case accuracy < 0.02:
-        // console.log("perfect_plus");
         perfect_plus = true;
-        tile_score = (this.beatScore / 5) * this.multiplier;
+        tile_score = this.baseScore * this.currentMultiplier;
         this.score += tile_score;
-        this.progress_bar += 1;
+        this.progress += 1;
         this.feebackText("perfect+");
         this.highlightPath(tile.x, "green");
         break;
       case accuracy < 0.06:
       case accuracy >= 0.1 && accuracy <= 0.17:
-        // console.log("perfect");
-        tile_score = (this.beatScore / 5) * this.multiplier;
+        tile_score = this.baseScore * this.currentMultiplier;
         this.score += tile_score * 0.7;
-        this.progress_bar += 1;
+        this.progress += 1;
         this.feebackText("perfect");
         this.highlightPath(tile.x, "green");
         break;
       case accuracy < 0.1:
-        // console.log("great");
         this.resetStreak();
-        tile_score = (this.beatScore / 5) * this.multiplier;
+        tile_score = this.baseScore * this.currentMultiplier;
         this.score += tile_score * 0.4;
-        this.progress_bar = 1;
-        this.multiplier = 1;
+        this.progress = 0;
+        this.currentMultiplier = 1;
         this.feebackText("great");
         this.highlightPath(tile.x, "green");
         break;
@@ -775,33 +887,29 @@ class Level extends Phaser.Scene {
         if (tile.lerp < 1) {
           this.feebackText("too-early");
         } else {
-          this.beatMissedDisplay();
+          console.log("missed");
         }
-        this.resetStreak();
+        this.progress = 0;
+        this.currentMultiplier = 1;
         this.highlightPath(tile.x, "red");
     }
 
-    if (this.progress_bar >= 10) {
-      this.streak_text.setText(`${10 * this.multiplier} STREAK`);
-
+    if (this.progress >= this.streakThreshold) {
+      this.streak_text.setText(
+        `${this.streakThreshold * this.currentMultiplier} STREAK`
+      );
       this.streakDisplay();
+      this.progress = 0;
+      this.currentMultiplier += 1;
 
-      this.progress_bar = 1;
-      this.multiplier += 1;
-
-      if (this.multiplier >= 5) {
-        this.multiplier = 5;
+      if (this.currentMultiplier > 5) {
+        this.currentMultiplier = 5;
       }
     }
 
-    this.multiplier_text.setText(`x${this.multiplier}`);
+    this.multiplier_text.setText(`x${this.currentMultiplier}`);
 
-    // show white background ghost of tile when tapped
-
-    // this.tileActiveFlash(tile, perfect_plus);
-
-    // add in scale up for juice but only if it's not already been swiped
-    if (!swiped) {
+    if (!swiped || !held) {
       this.tweens.add({
         targets: tile,
         scaleX: 1.1,
@@ -842,7 +950,6 @@ class Level extends Phaser.Scene {
 
     switch (str) {
       case "too-early":
-        // console.log("too early popup");
         this.feedback_text.setTexture("too_early_popup");
         break;
       case "perfect+":
@@ -895,9 +1002,6 @@ class Level extends Phaser.Scene {
   }
 
   gameOver() {
-    // this.saveBestScore();
-    this.cameras.main.shake(1000, 0.015);
-
     this.music.stop();
     this.matchedMarkerTracker = [];
     clearInterval(this.globalInterval);
@@ -905,23 +1009,13 @@ class Level extends Phaser.Scene {
     this.track.current_score = this.score;
     this.track.midi = this.midi;
 
-    // Get current scores object from localStorage
     let scores = JSON.parse(localStorage.getItem("scores") || "{}");
-    // Update the score for the current song
     scores[this.track.song_name] = this.score;
-    // Save the updated scores object back to localStorage
     localStorage.setItem("scores", JSON.stringify(scores));
 
-    this.overlay.setVisible(true);
-    this.beat_missed_text.setVisible(true).setDepth(6);
-    setTimeout(() => {
-      this.overlay.setVisible(false);
-      this.beat_missed_text.setVisible(false);
-
-      this.cleanUp();
-      this.scene.stop("Level");
-      this.scene.start("GameOverScene", { track: this.track });
-    }, 500);
+    this.cleanUp();
+    this.scene.stop("Level");
+    this.scene.start("GameOverScene", { track: this.track });
   }
 
   countDown() {
@@ -973,7 +1067,7 @@ class Level extends Phaser.Scene {
       scaleX: 2,
       scaleY: 2,
       alpha: 0.1,
-      duration: 250, // Reduced duration for faster animation
+      duration: 250,
       yoyo: true,
       ease: "Power2",
     });
@@ -995,7 +1089,7 @@ class Level extends Phaser.Scene {
         scaleX: 2,
         scaleY: 2,
         alpha: 0.1,
-        duration: 250, // Reduced duration for faster animation
+        duration: 250,
         yoyo: true,
         ease: "Power2",
       });
@@ -1007,7 +1101,7 @@ class Level extends Phaser.Scene {
           targets: this.overlay,
           alpha: 0,
           ease: "Linear",
-          duration: 250, // Reduced duration for faster fade out
+          duration: 250,
           onComplete: () => {
             this.overlay.setVisible(false);
             this.overlay.setAlpha(1);
@@ -1026,11 +1120,11 @@ class Level extends Phaser.Scene {
             scaleX: { from: 0, to: 1 },
             scaleY: { from: 0, to: 1 },
             ease: "Power1",
-            duration: 250, // Reduced duration for faster animation
+            duration: 250,
           });
         });
       }
-    }, 1000); // Reduced interval for faster countdown
+    }, 1000);
   }
 
   pad(num, size) {
@@ -1052,6 +1146,10 @@ class Level extends Phaser.Scene {
     }
     return array;
   }
-  //#endregion
+
+  /* END-USER-CODE */
 }
 
+/* END OF COMPILED CODE */
+
+// You can write more code here
