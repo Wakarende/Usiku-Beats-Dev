@@ -263,6 +263,16 @@
                 "key": "swipe_down"
             },
             {
+                "url": "assets/sprites/playscene/swipe_down_left.png",
+                "type": "image",
+                "key": "swipe_down_left"
+            },
+            {
+                "url": "assets/sprites/playscene/swipe_down_right.png",
+                "type": "image",
+                "key": "swipe_down_right"
+            },
+            {
                 "url": "assets/sprites/playscene/swipe_left.png",
                 "type": "image",
                 "key": "swipe_left"
@@ -276,6 +286,16 @@
                 "url": "assets/sprites/playscene/swipe_up.png",
                 "type": "image",
                 "key": "swipe_up"
+            },
+            {
+                "url": "assets/sprites/playscene/swipe_up_left.png",
+                "type": "image",
+                "key": "swipe_up_left"
+            },
+            {
+                "url": "assets/sprites/playscene/swipe_up_right.png",
+                "type": "image",
+                "key": "swipe_up_right"
             },
             {
                 "url": "assets/sprites/playscene/tap_zone_area.png",

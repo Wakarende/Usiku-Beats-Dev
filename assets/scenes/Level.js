@@ -461,16 +461,16 @@ class Level extends Phaser.Scene {
       )
       .setDepth(10);
 
-    let rect = this.add
-      .rectangle(
-        this.screenCenterX,
-        this.screenHeight * this.tileTarget,
-        this.screenWidth,
-        2,
-        0x00f000,
-        1
-      )
-      .setDepth(100);
+    // let rect = this.add
+    //   .rectangle(
+    //     this.screenCenterX,
+    //     this.screenHeight * this.tileTarget,
+    //     this.screenWidth,
+    //     2,
+    //     0x00f000,
+    //     1
+    //   )
+    //   .setDepth(100);
     this.fps_text = this.add.text(this.screenWidth - 20, 20, "", {});
 
     this.fps_text.setOrigin(1, 0).setDepth(100);
@@ -526,9 +526,9 @@ class Level extends Phaser.Scene {
 
         tile.setAlpha(tile.lerp);
 
-        if (tile.y > this.screenHeight * this.tileTarget) {
-          this.checkOverlap(tile);
-        }
+        // if (tile.y > this.screenHeight * this.tileTarget) {
+        //   this.checkOverlap(tile);
+        // }
       });
     }
   }
@@ -614,6 +614,42 @@ class Level extends Phaser.Scene {
         break;
       case 0.5511811023622047:
         tile.setTexture("swipe_down");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.down) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+      case 0.7874015748031497:
+        tile.setTexture("swipe_up_left");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.up) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+      case 0.31496062992125984:
+        tile.setTexture("swipe_up_right");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.up) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+      case 0.6299212598425197:
+        tile.setTexture("swipe_down_left");
+
+        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+          if (swipe.down) {
+            this.handleSwipe(tile, swipe);
+          }
+        });
+        break;
+      case 0.47244094488188976:
+        tile.setTexture("swipe_down_right");
 
         swipe.on("swipe", (swipe, gameObject, lastPointer) => {
           if (swipe.down) {
@@ -743,11 +779,10 @@ class Level extends Phaser.Scene {
 
   handleSwipe(tile, swipe) {
     tile.swiped = true;
-
     this.onClickInstrument(tile, true);
-
+  
     let movementDistance = 25;
-
+  
     let tweenConfig = {
       duration: 150,
       ease: "Power1",
@@ -755,11 +790,47 @@ class Level extends Phaser.Scene {
         tile.destroy();
       },
     };
-
+  
     tile.setTexture("arrow");
-    if (swipe.up) {
+  
+    if (swipe.up && swipe.right) {
+      // Up-right diagonal swipe
+      tile.angle -= 45;
+      this.tweens.add({
+        targets: tile,
+        x: tile.x + movementDistance * Math.sqrt(2) / 2,
+        y: tile.y - movementDistance * Math.sqrt(2) / 2,
+        ...tweenConfig,
+      });
+    } else if (swipe.up && swipe.left) {
+      // Up-left diagonal swipe
+      tile.angle -= 135;
+      this.tweens.add({
+        targets: tile,
+        x: tile.x - movementDistance * Math.sqrt(2) / 2,
+        y: tile.y - movementDistance * Math.sqrt(2) / 2,
+        ...tweenConfig,
+      });
+    } else if (swipe.down && swipe.right) {
+      // Down-right diagonal swipe
+      tile.angle += 45;
+      this.tweens.add({
+        targets: tile,
+        x: tile.x + movementDistance * Math.sqrt(2) / 2,
+        y: tile.y + movementDistance * Math.sqrt(2) / 2,
+        ...tweenConfig,
+      });
+    } else if (swipe.down && swipe.left) {
+      // Down-left diagonal swipe
+      tile.angle += 135;
+      this.tweens.add({
+        targets: tile,
+        x: tile.x - movementDistance * Math.sqrt(2) / 2,
+        y: tile.y + movementDistance * Math.sqrt(2) / 2,
+        ...tweenConfig,
+      });
+    } else if (swipe.up) {
       tile.angle -= 90;
-
       this.tweens.add({
         targets: tile,
         y: tile.y - movementDistance * 2,
