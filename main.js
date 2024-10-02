@@ -1,9 +1,7 @@
 // ***** define some clobal sound variables here to work across scenes
 var start_sfx;
 var background_music;
-JSON.parse(localStorage.getItem("score"))
-  ? null
-  : localStorage.setItem("score", JSON.stringify(0));
+JSON.parse(localStorage.getItem("score")) ? null : localStorage.setItem("score", JSON.stringify(0));
 var score = parseInt(JSON.parse(localStorage.getItem("score")));
 
 function getCookie(name) {
@@ -59,10 +57,10 @@ window.addEventListener("load", function () {
       input: {
         activePointers: 3,
       },
-    //   fps: {
-    //     target: 30,
-    //     forceSetTimeOut: true,
-    //   },
+      //   fps: {
+      //     target: 30,
+      //     forceSetTimeOut: true,
+      //   },
     });
 
     game.scene.add("Boot", Boot, true);
@@ -76,7 +74,6 @@ class Boot extends Phaser.Scene {
 
   create() {
     start_sfx = this.sound.add("start_sfx", { volume: 0.7, loop: false });
-
 
     // superglobal settings
     this.registry.set("transitionDuration", 500);

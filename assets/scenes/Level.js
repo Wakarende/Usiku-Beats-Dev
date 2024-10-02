@@ -238,13 +238,7 @@ class Level extends Phaser.Scene {
     beats2.visible = false;
 
     // lists
-    const ui_layer = [
-      multiplier_text,
-      score_text,
-      song_name_text,
-      artist_text,
-      top_banner,
-    ];
+    const ui_layer = [multiplier_text, score_text, song_name_text, artist_text, top_banner];
 
     this.top_banner = top_banner;
     this.artist_text = artist_text;
@@ -447,18 +441,13 @@ class Level extends Phaser.Scene {
       .setDepth(10);
 
     this.multiplier_emitter = this.add
-      .particles(
-        this.multiplier_text.x,
-        this.multiplier_text.y,
-        "Play_active",
-        {
-          lifespan: 750,
-          speed: { min: 50, max: 100 },
-          scale: { start: 0.5, end: 0 },
-          blendMode: "ADD",
-          emitting: false,
-        }
-      )
+      .particles(this.multiplier_text.x, this.multiplier_text.y, "Play_active", {
+        lifespan: 750,
+        speed: { min: 50, max: 100 },
+        scale: { start: 0.5, end: 0 },
+        blendMode: "ADD",
+        emitting: false,
+      })
       .setDepth(10);
 
     // let rect = this.add
@@ -493,42 +482,38 @@ class Level extends Phaser.Scene {
     this.lowFpsMode = this.fps < 30 ? true : false;
 
     if (Math.abs(this.scoreDisplay - this.score) > 1) {
-      this.scoreDisplay = Phaser.Math.Linear(
-        this.scoreDisplay,
-        this.score,
-        0.1
-      );
+      this.scoreDisplay = Phaser.Math.Linear(this.scoreDisplay, this.score, 0.1);
       this.score_text.setText(`${Math.trunc(this.scoreDisplay)}`);
     }
 
     let seek = this.music?.seek;
 
     if (seek >= 0) {
-      if (
-        this.soundMarkers.length > 0 &&
-        seek + this.tileDuration >= this.soundMarkers[0].start
-      ) {
+      if (this.soundMarkers.length > 0 && seek + this.tileDuration >= this.soundMarkers[0].start) {
         var marker = this.soundMarkers.shift();
         this.creatOneDrum(marker);
       }
 
       this.tileGroup.getChildren().forEach((tile) => {
-        if (tile.swiped || tile.held) return;
+        if (tile.swiped) return;
 
-        tile.lerp = Math.max(
-          0,
-          (seek - tile.start + this.tileDuration) / this.tileDuration
-        );
+        if (!tile.stopLerp) {
+          // Only update lerp if stopLerp is false
+          tile.lerp = Math.max(0, (seek - tile.start + this.tileDuration) / this.tileDuration);
+        }
 
-        tile.setY(
-          Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp)
-        );
+        if (!tile.held) {
+          // Only update position if not held
+          let tileY = Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp);
+          tile.setY(tileY);
 
-        tile.setAlpha(tile.lerp);
+          if (tile.aestheticImage) {
+            tile.aestheticImage.setY(tileY);
+            tile.aestheticImage.setAlpha(tile.lerp);
+          }
 
-        // if (tile.y > this.screenHeight * this.tileTarget) {
-        //   this.checkOverlap(tile);
-        // }
+          tile.setAlpha(tile.lerp);
+        }
       });
     }
   }
@@ -678,17 +663,12 @@ class Level extends Phaser.Scene {
 
     let normalizationFactor = slope * tileDuration + intercept;
 
-    let heldTileScaleFactor =
-      1 + Math.log1p(duration) / Math.log1p(normalizationFactor);
+    let heldTileScaleFactor = 1 + Math.log1p(duration) / Math.log1p(normalizationFactor);
     return heldTileScaleFactor;
   }
 
   handleHeldTile(tile, duration) {
-    let heldTileScaleFactor = this.calculateHeldTileScaleFactor(
-      duration,
-      this.tileDuration
-    );
-
+    let heldTileScaleFactor = this.calculateHeldTileScaleFactor(duration, this.tileDuration);
     let initialScaleY = heldTileScaleFactor * duration;
 
     tile.setScale(1, initialScaleY);
@@ -698,21 +678,32 @@ class Level extends Phaser.Scene {
     let originalOriginY = tile.originY;
 
     let newOriginY = (originalOriginY * originalHeight) / scaledHeight;
-
     newOriginY = 1 - newOriginY;
     tile.setOrigin(0.5, newOriginY);
 
+    // Create aesthetic image
+    tile.aestheticImage = this.add
+      .image(tile.x, tile.y, "beats222")
+      .setOrigin(0.5, newOriginY)
+      .setScale(1, initialScaleY)
+      .setDepth(tile.depth + 1);
+
     let initialHeight = tile.displayHeight;
     let clicked = false;
+    let tween = null;
 
     tile.on("pointerdown", () => {
       tile.held = true;
+      tile.stopLerp = true; // Add this line to stop the lerp
 
-      this.tweens.add({
-        targets: tile,
+      tween = this.tweens.add({
+        targets: [tile, tile.aestheticImage],
         scaleY: 1,
         ease: "Linear",
         duration: duration * 1000,
+        onUpdate: () => {
+          this.updateHeldTilePosition(tile);
+        },
         onComplete: () => {
           if (!clicked) {
             clicked = true;
@@ -723,11 +714,40 @@ class Level extends Phaser.Scene {
     });
 
     tile.on("pointerup", () => {
-      if (!clicked) {
-        clicked = true;
-        this.onClickInstrument(tile, false, true);
+      tile.held = false;
+      tile.stopLerp = false; // Add this line to resume the lerp
+      if (tween && tween.progress < 1) {
+        tween.stop();
+        if (!clicked) {
+          clicked = true;
+          this.onClickInstrument(tile, false, true);
+        }
       }
     });
+
+    // Add cleanup method
+    tile.cleanup = () => {
+      if (tile.aestheticImage) {
+        tile.aestheticImage.destroy();
+      }
+    };
+  }
+  updateHeldTilePosition(tile) {
+    if (tile.held) {
+      // If the tile is being held, we don't need to update its position
+      // as it's handled by the tween in handleHeldTile
+      return;
+    }
+
+    // For tiles that aren't currently held, update as before
+    let tileY = Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp);
+    tile.setY(tileY);
+
+    if (tile.aestheticImage) {
+      tile.aestheticImage.setPosition(tile.x, tileY);
+      tile.aestheticImage.setScale(tile.scaleX, tile.scaleY);
+      tile.aestheticImage.setOrigin(tile.originX, tile.originY);
+    }
   }
 
   checkOverlap(tile) {
@@ -780,9 +800,9 @@ class Level extends Phaser.Scene {
   handleSwipe(tile, swipe) {
     tile.swiped = true;
     this.onClickInstrument(tile, true);
-  
+
     let movementDistance = 25;
-  
+
     let tweenConfig = {
       duration: 150,
       ease: "Power1",
@@ -790,16 +810,16 @@ class Level extends Phaser.Scene {
         tile.destroy();
       },
     };
-  
+
     tile.setTexture("arrow");
-  
+
     if (swipe.up && swipe.right) {
       // Up-right diagonal swipe
       tile.angle -= 45;
       this.tweens.add({
         targets: tile,
-        x: tile.x + movementDistance * Math.sqrt(2) / 2,
-        y: tile.y - movementDistance * Math.sqrt(2) / 2,
+        x: tile.x + (movementDistance * Math.sqrt(2)) / 2,
+        y: tile.y - (movementDistance * Math.sqrt(2)) / 2,
         ...tweenConfig,
       });
     } else if (swipe.up && swipe.left) {
@@ -807,8 +827,8 @@ class Level extends Phaser.Scene {
       tile.angle -= 135;
       this.tweens.add({
         targets: tile,
-        x: tile.x - movementDistance * Math.sqrt(2) / 2,
-        y: tile.y - movementDistance * Math.sqrt(2) / 2,
+        x: tile.x - (movementDistance * Math.sqrt(2)) / 2,
+        y: tile.y - (movementDistance * Math.sqrt(2)) / 2,
         ...tweenConfig,
       });
     } else if (swipe.down && swipe.right) {
@@ -816,8 +836,8 @@ class Level extends Phaser.Scene {
       tile.angle += 45;
       this.tweens.add({
         targets: tile,
-        x: tile.x + movementDistance * Math.sqrt(2) / 2,
-        y: tile.y + movementDistance * Math.sqrt(2) / 2,
+        x: tile.x + (movementDistance * Math.sqrt(2)) / 2,
+        y: tile.y + (movementDistance * Math.sqrt(2)) / 2,
         ...tweenConfig,
       });
     } else if (swipe.down && swipe.left) {
@@ -825,8 +845,8 @@ class Level extends Phaser.Scene {
       tile.angle += 135;
       this.tweens.add({
         targets: tile,
-        x: tile.x - movementDistance * Math.sqrt(2) / 2,
-        y: tile.y + movementDistance * Math.sqrt(2) / 2,
+        x: tile.x - (movementDistance * Math.sqrt(2)) / 2,
+        y: tile.y + (movementDistance * Math.sqrt(2)) / 2,
         ...tweenConfig,
       });
     } else if (swipe.up) {
@@ -966,9 +986,7 @@ class Level extends Phaser.Scene {
     }
 
     if (this.progress >= this.streakThreshold) {
-      this.streak_text.setText(
-        `${this.streakThreshold * this.currentMultiplier} STREAK`
-      );
+      this.streak_text.setText(`${this.streakThreshold * this.currentMultiplier} STREAK`);
       this.streakDisplay();
       this.progress = 0;
       this.currentMultiplier += 1;
@@ -980,17 +998,25 @@ class Level extends Phaser.Scene {
 
     this.multiplier_text.setText(`x${this.currentMultiplier}`);
 
-    if (!swiped || !held) {
+    if (!swiped && !held) {
       this.tweens.add({
-        targets: tile,
+        targets: [tile, tile.aestheticImage],
         scaleX: 1.1,
         scaleY: 1.1,
         duration: 75,
         ease: "Power1",
         onComplete: () => {
+          if (tile.aestheticImage) {
+            tile.aestheticImage.destroy();
+          }
           tile.destroy();
         },
       });
+    } else if (held) {
+      if (tile.aestheticImage) {
+        tile.aestheticImage.destroy();
+      }
+      tile.destroy();
     }
   }
 

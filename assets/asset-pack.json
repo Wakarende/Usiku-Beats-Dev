@@ -22,9 +22,34 @@
                 "key": "beats2"
             },
             {
+                "url": "assets/sprites/playscene/beats2_bottom.png",
+                "type": "image",
+                "key": "beats2_bottom"
+            },
+            {
                 "url": "assets/sprites/playscene/beats2_long.png",
                 "type": "image",
                 "key": "beats2_long"
+            },
+            {
+                "url": "assets/sprites/playscene/beats2_middle.png",
+                "type": "image",
+                "key": "beats2_middle"
+            },
+            {
+                "url": "assets/sprites/playscene/beats2_top.png",
+                "type": "image",
+                "key": "beats2_top"
+            },
+            {
+                "url": "assets/sprites/playscene/beats222.png",
+                "type": "image",
+                "key": "beats222"
+            },
+            {
+                "url": "assets/sprites/playscene/beats222_2.png",
+                "type": "image",
+                "key": "beats222_2"
             },
             {
                 "url": "assets/sprites/brandingtransitionscene/branding_transition_background.jpg",
