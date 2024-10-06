@@ -508,7 +508,7 @@ class Level extends Phaser.Scene {
           tile.setY(tileY);
 
           if (tile.aestheticImage) {
-            tile.aestheticImage.setY(tileY);
+            tile.aestheticImage.setY(tileY - tile.displayHeight / 3);
             tile.aestheticImage.setAlpha(tile.lerp);
           }
 
@@ -683,9 +683,8 @@ class Level extends Phaser.Scene {
 
     // Create aesthetic image
     tile.aestheticImage = this.add
-      .image(tile.x, tile.y, "beats222")
-      .setOrigin(0.5, newOriginY)
-      .setScale(1, initialScaleY)
+      .image(tile.x, tile.y - tile.displayHeight / 2, "beats222_2")
+      .setOrigin(0.5, 0.5)
       .setDepth(tile.depth + 1);
 
     let initialHeight = tile.displayHeight;
@@ -733,20 +732,21 @@ class Level extends Phaser.Scene {
     };
   }
   updateHeldTilePosition(tile) {
-    if (tile.held) {
-      // If the tile is being held, we don't need to update its position
-      // as it's handled by the tween in handleHeldTile
-      return;
-    }
+    // if (tile.held) {
+    //   // If the tile is being held, we don't need to update its position
+    //   // as it's handled by the tween in handleHeldTile
+    //   return;
+    // }
 
     // For tiles that aren't currently held, update as before
     let tileY = Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp);
     tile.setY(tileY);
 
     if (tile.aestheticImage) {
-      tile.aestheticImage.setPosition(tile.x, tileY);
-      tile.aestheticImage.setScale(tile.scaleX, tile.scaleY);
-      tile.aestheticImage.setOrigin(tile.originX, tile.originY);
+      // Position the aesthetic image above the tile
+      tile.aestheticImage.setPosition(tile.x, tile.y - tile.displayHeight / 3);
+      tile.aestheticImage.setScale(tile.scaleX, 1); // Keep the width scale, but set height scale to 1
+      tile.aestheticImage.setAlpha(tile.alpha); // Match the alpha of the tile
     }
   }
 
