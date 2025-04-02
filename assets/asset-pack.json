@@ -17,10 +17,15 @@
                 "key": "Banner BG"
             },
             {
-                "url": "assets/sprites/playscene/beats2.png",
+                "url": "assets/sprites/playscene/Tap_tile.png",
                 "type": "image",
                 "key": "beats2"
             },
+            {
+        "url": "assets/sprites/playscene/rythm_line.png",
+        "type": "image",
+        "key": "rythm_line"
+      },
             {
                 "url": "assets/sprites/playscene/beats2_long.png",
                 "type": "image",
@@ -59,14 +64,24 @@
                 "key": "countdown_sfx"
             },
             {
-                "url": "assets/sprites/playscene/divider_1.png",
+                "url": "assets/sprites/playscene/visualizer-divider.png",
                 "type": "image",
                 "key": "divider_1"
             },
             {
-                "url": "assets/sprites/playscene/divider_2.png",
+                "url": "assets/sprites/playscene/line_divider.png",
                 "type": "image",
                 "key": "divider_2"
+            },
+            {
+                "url": "assets/sprites/playscene/wave.png",
+                "type": "image",
+                "key": "wave"
+            },
+            {
+            "url": "assets/sprites/playscene/Vignette.png",
+            "type": "image",
+            "key": "Vignette"
             },
             {
                 "url": [
@@ -146,7 +161,7 @@
                 "key": "particle"
             },
             {
-                "url": "assets/sprites/playscene/pause.png",
+                "url": "assets/sprites/playscene/Pause 2.png",
                 "type": "image",
                 "key": "pause"
             },
@@ -171,7 +186,7 @@
                 "key": "perfect+_popup"
             },
             {
-                "url": "assets/sprites/playscene/plain_background.png",
+                "url": "assets/sprites/playscene/Game-bg.png",
                 "type": "image",
                 "key": "plain_background"
             },
@@ -258,7 +273,7 @@
                 "key": "streak_overlay"
             },
             {
-                "url": "assets/sprites/playscene/swipe_down.png",
+                "url": "assets/sprites/playscene/down_swipe.png",
                 "type": "image",
                 "key": "swipe_down"
             },
@@ -273,22 +288,22 @@
                 "key": "swipe_down_right"
             },
             {
-                "url": "assets/sprites/playscene/swipe_left.png",
+                "url": "assets/sprites/playscene/left_swipe.png",
                 "type": "image",
                 "key": "swipe_left"
             },
             {
-                "url": "assets/sprites/playscene/swipe_right.png",
+                "url": "assets/sprites/playscene/right_swipe.png",
                 "type": "image",
                 "key": "swipe_right"
             },
             {
-                "url": "assets/sprites/playscene/swipe_up.png",
+                "url": "assets/sprites/playscene/up_swipe.png",
                 "type": "image",
                 "key": "swipe_up"
             },
             {
-                "url": "assets/sprites/playscene/swipe_up_left.png",
+                "url": "assets/sprites/playscene/swipe_left.png",
                 "type": "image",
                 "key": "swipe_up_left"
             },
@@ -298,14 +313,29 @@
                 "key": "swipe_up_right"
             },
             {
-                "url": "assets/sprites/playscene/tap_zone_area.png",
+                "url": "assets/sprites/playscene/tap_zone_1.png",
                 "type": "image",
                 "key": "tap_zone_area"
             },
             {
-                "url": "assets/sprites/playscene/tapZone.png",
+                "url": "assets/sprites/playscene/perfect_zone_1.png",
                 "type": "image",
                 "key": "tapZone"
+            },
+             {
+                "url": "assets/sprites/playscene/Perfect_1.png",
+                "type": "image",
+                "key": "Perfect_1"
+            },
+             {
+                "url": "assets/sprites/playscene/Perfect_2.png",
+                "type": "image",
+                "key": "Perfect_2"
+            },
+             {
+                "url": "assets/sprites/playscene/Perfect_3.png",
+                "type": "image",
+                "key": "Perfect_3"
             },
             {
                 "url": [
@@ -322,7 +352,7 @@
                 "key": "Thumbnail_Screen Swipe_Sfx"
             },
             {
-                "url": "assets/sprites/playscene/tile_active.png",
+                "url": "assets/sprites/playscene/tile_active_copy.png",
                 "type": "image",
                 "key": "tile_active"
             },
