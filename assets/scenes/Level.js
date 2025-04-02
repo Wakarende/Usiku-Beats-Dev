@@ -664,10 +664,6 @@ class Level extends Phaser.Scene {
   spawnLine(marker) {
     if (!this.lineGroup) return;
 
-    // let line = this.add
-    //   .rectangle(this.screenCenterX, 0, this.screenWidth, 3, 0x2222)
-    //   .setDepth(2);
-
     let line = this.add.image(this.screenCenterX, 0, "rythm_line");
 
     line.setDepth(2);
@@ -675,24 +671,6 @@ class Level extends Phaser.Scene {
     line.start = marker.start;
     line.lastPulse = 0;
     this.lineGroup.add(line);
-
-    // line.setVisible(false);
-
-    // this.tweens.add({
-    //   targets: line,
-    //   scaleX: { from: 1.5, to: 1 },
-    //   alpha: { from: 1, to: 0.8 },
-    //   duration: 100,
-    //   ease: "Sine.easeOut",
-    //   yoyo: true,
-    // });
-
-    // this.tweens.add({
-    //   targets: line,
-    //   tint: { from: 0xff0000, to: 0x00ffff },
-    //   duration: 100,
-    //   ease: "Linear",
-    // });
   }
 
   updateWhiteLines(seek) {
@@ -769,21 +747,31 @@ class Level extends Phaser.Scene {
   drawDividerWithWaveform() {
     const g = this.dividerGraphics;
     g.clear();
-    g.lineStyle(6, 0x084d5a, 0.8);
-    g.beginPath();
-    g.moveTo(this.dividerX, 0);
-    g.lineTo(this.dividerX, this.screenHeight);
-    g.strokePath();
+    g.lineStyle(6, 0x084d5a, 1);
 
-    const totalSteps = 100;
     const waveSectionHeight = 120;
     const waveStartY = this.dividerWaveY - waveSectionHeight / 2;
     const waveEndY = this.dividerWaveY + waveSectionHeight / 2;
+
+    g.beginPath();
+    g.moveTo(this.dividerX, 0);
+    g.lineTo(this.dividerX, waveStartY);
+    g.strokePath();
+
+    const totalSteps = 100;
+    // const waveSectionHeight = 120;
+    // const waveStartY = this.dividerWaveY - waveSectionHeight / 2;
+    // const waveEndY = this.dividerWaveY + waveSectionHeight / 2;
 
     const baseX = this.dividerX;
     const pulseAmount = this.dividerPulseAmplitude * 15;
     const waveCount = 8; // increase for more zigzags
     const waveHeight = pulseAmount;
+
+    g.beginPath();
+    g.moveTo(this.dividerX, waveEndY);
+    g.lineTo(this.dividerX, this.screenHeight);
+    g.strokePath();
 
     for (let i = 0; i < totalSteps; i++) {
       const t = i / (totalSteps - 1);
@@ -871,28 +859,6 @@ class Level extends Phaser.Scene {
       this.dividerPulseAmplitude *= 0.9;
       this.drawDividerWithWaveform();
     }
-
-    // if (
-    //   this.leftPulseMarkers.length > 0 &&
-    //   seek + this.tileDuration >= this.leftPulseMarkers[0].start
-    // ) {
-    //   const marker = this.leftPulseMarkers.shift();
-    //   this.spawnLeftPulse(marker.start);
-    // }
-
-    // 4B) Spawn any new right pulses
-    // if (
-    //   this.rightPulseMarkers.length > 0 &&
-    //   seek + this.tileDuration >= this.rightPulseMarkers[0].start
-    // ) {
-    //   const marker = this.rightPulseMarkers.shift();
-    //   this.spawnRightPulse(marker.start);
-    // }
-
-    // 4C) Move pulses (just alpha tween or scale tween over time)
-    // Or you can do fancier logic. For example, you can let them fade out after a second
-    // this.moveLeftPulses(seek);
-    // this.moveRightPulses(seek);
     if (seek >= 0) {
       if (
         this.soundMarkers.length > 0 &&
