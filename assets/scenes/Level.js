@@ -563,8 +563,6 @@ class Level extends Phaser.Scene {
     // this.leftPulseGroup = this.add.group();
     // this.rightPulseGroup = this.add.group();
     this.countDown();
-    // this.drawDividerWithWaveform();
-    // this.drawWaveToCanvas();
 
     this.events.on("resume", () => {
       this.music.resume();
@@ -699,6 +697,24 @@ class Level extends Phaser.Scene {
 
     this.dividerWaveDirectionLeft = "up";
     this.dividerWaveDirectionRight = "down";
+
+    this.leftSegments = [
+      { dir: -1, height: 18 },
+      { dir: 1, height: 20 },
+      { dir: -1, height: 22 },
+      { dir: 1, height: 18 },
+      { dir: -1, height: 14 },
+      { dir: 1, height: 8 },
+    ];
+
+    this.rightSegments = [
+      { dir: 1, height: 18 },
+      { dir: -1, height: 20 },
+      { dir: 1, height: 22 },
+      { dir: -1, height: 18 },
+      { dir: 1, height: 14 },
+      { dir: -1, height: 8 },
+    ];
   }
 
   createLineGroup() {
@@ -788,309 +804,39 @@ class Level extends Phaser.Scene {
     });
   }
 
-  // drawDividerWithWaveform() {
-  //   const g = this.dividerGraphics;
-  //   g.clear();
-  //   g.lineStyle(6, 0x084d5a, 1);
+  randomizeSegmentsInPlace(segments, variation = 4) {
+    // How many segments to randomize?
+    const numToRandomize = Phaser.Math.Between(1, variation);
 
-  //   const waveSectionHeight = 120;
-  //   const waveStartY = this.dividerWaveY - waveSectionHeight / 2;
-  //   const waveEndY = this.dividerWaveY + waveSectionHeight / 2;
+    for (let i = 0; i < numToRandomize; i++) {
+      const index = Phaser.Math.Between(0, segments.length - 1);
 
-  //   g.beginPath();
-  //   g.moveTo(this.dividerX, 0);
-  //   g.lineTo(this.dividerX, waveStartY);
-  //   g.strokePath();
+      // Randomly tweak height a little (±5)
+      const delta = Phaser.Math.Between(-5, 5);
+      segments[index].height = Phaser.Math.Clamp(
+        segments[index].height + delta,
+        6,
+        30
+      );
 
-  //   const totalSteps = 100;
-  //   // const waveSectionHeight = 120;
-  //   // const waveStartY = this.dividerWaveY - waveSectionHeight / 2;
-  //   // const waveEndY = this.dividerWaveY + waveSectionHeight / 2;
+      // Optional: flip direction sometimes
+      if (Math.random() < 0.3) {
+        segments[index].dir *= -1;
+      }
+    }
+  }
 
-  //   const baseX = this.dividerX;
-  //   const pulseAmount = this.dividerPulseAmplitude * 15;
-  //   const waveCount = 8; // increase for more zigzags
-  //   const waveHeight = pulseAmount;
-
-  //   g.beginPath();
-  //   g.moveTo(this.dividerX, waveEndY);
-  //   g.lineTo(this.dividerX, this.screenHeight);
-  //   g.strokePath();
-
-  //   for (let i = 0; i < totalSteps; i++) {
-  //     const t = i / (totalSteps - 1);
-  //     const y = t * this.screenHeight;
-
-  //     let offsetX = 0;
-  //     if (y >= waveStartY && y <= waveEndY) {
-  //       const relativeT = (y - waveStartY) / waveSectionHeight;
-  //       const phase = relativeT * waveCount;
-  //       const smoothZigZag = Math.sin(phase * Math.PI); // smooth wave
-  //       const amplitudeVary = 1 + 0.3 * Math.sin(phase * 2.3); // small modulating wave
-  //       offsetX = smoothZigZag * waveHeight * amplitudeVary;
-  //     }
-
-  //     const x = baseX + offsetX;
-
-  //     if (i === 0) {
-  //       g.moveTo(x, y);
-  //     } else {
-  //       g.lineTo(x, y);
-  //     }
-  //   }
-
-  //   g.strokePath();
-  // }
-
-  // drawDividerWithWaveform() {
-  //   const g = this.dividerGraphics;
-  //   g.clear();
-  //   g.lineStyle(6, 0x084d5a, 1);
-
-  //   const waveSectionHeight = 120;
-  //   const waveStartY = this.dividerWaveY - waveSectionHeight / 2;
-  //   const waveEndY = this.dividerWaveY + waveSectionHeight / 2;
-
-  //   g.beginPath();
-  //   g.moveTo(this.dividerX, 0);
-  //   g.lineTo(this.dividerX, waveStartY);
-  //   g.strokePath();
-
-  //   const totalSteps = 100;
-  //   const baseX = this.dividerX;
-  //   const pulseAmount = this.dividerPulseAmplitude * 15;
-  //   const waveCount = 8;
-  //   const waveHeight = pulseAmount;
-
-  //   g.beginPath();
-  //   g.moveTo(this.dividerX, waveEndY);
-  //   g.lineTo(this.dividerX, this.screenHeight);
-  //   g.strokePath();
-
-  //   for (let i = 0; i < totalSteps; i++) {
-  //     const t = i / (totalSteps - 1);
-  //     const y = t * this.screenHeight;
-
-  //     let offsetX = 0;
-
-  //     if (y >= waveStartY && y <= waveEndY) {
-  //       const relativeT = (y - waveStartY) / waveSectionHeight;
-  //       const phase = relativeT * waveCount;
-  //       const smoothZigZag = Math.sin(phase * Math.PI);
-  //       const amplitudeVary = 1 + 0.3 * Math.sin(phase * 2.3);
-  //       offsetX = smoothZigZag * waveHeight * amplitudeVary;
-
-  //       // 🔥 Make first left pulse chunkier
-  //       const isFirstLeftPulse =
-  //         relativeT >= 0.85 && relativeT <= 1.0 && smoothZigZag < 0;
-
-  //       if (isFirstLeftPulse) {
-  //         offsetX *= 7; // Make it fatter
-  //       }
-  //     }
-
-  //     const x = baseX + offsetX;
-
-  //     if (i === 0) {
-  //       g.moveTo(x, y);
-  //     } else {
-  //       g.lineTo(x, y);
-  //     }
-  //   }
-
-  //   g.strokePath();
-  // }
-
-  // drawDividerWithWaveform() {
-  //   const g = this.dividerGraphics;
-  //   g.clear();
-
-  //   const baseX = this.dividerX;
-  //   const pulseAmount = this.dividerPulseAmplitude * 15;
-
-  //   // Line style
-  //   g.lineStyle(6, 0x084d5a, 1);
-
-  //   // Define the wave segment heights and directions
-  //   const segments = [
-  //     { dir: -1, height: 18 },
-  //     { dir: 1, height: 20 },
-  //     { dir: -1, height: 22 },
-  //     { dir: 1, height: 18 },
-  //     { dir: -1, height: 14 },
-  //     { dir: 1, height: 8 },
-  //   ];
-
-  //   const waveSectionHeight = segments.reduce(
-  //     (sum, seg) => sum + seg.height,
-  //     0
-  //   );
-  //   const waveStartY = this.dividerWaveY - waveSectionHeight / 2;
-  //   const waveEndY = waveStartY + waveSectionHeight;
-
-  //   // Top line
-  //   g.beginPath();
-  //   g.moveTo(baseX, 0);
-  //   g.lineTo(baseX, waveStartY);
-  //   g.strokePath();
-
-  //   // Wave path
-  //   g.beginPath();
-  //   let y = waveStartY;
-  //   g.moveTo(baseX, y);
-
-  //   segments.forEach((seg) => {
-  //     const nextY = y + seg.height;
-  //     const offsetX = seg.dir * pulseAmount;
-  //     g.lineTo(baseX + offsetX, y + seg.height / 2); // middle arc point
-  //     g.lineTo(baseX, nextY); // return to center
-  //     y = nextY;
-  //   });
-
-  //   g.strokePath();
-
-  //   // Bottom line
-  //   g.beginPath();
-  //   g.moveTo(baseX, waveEndY);
-  //   g.lineTo(baseX, this.screenHeight);
-  //   g.strokePath();
-  // }
-  // drawDividerWithWaveform() {
-  //   const g = this.dividerGraphics;
-  //   g.clear();
-
-  //   const baseX = this.dividerX;
-  //   const pulseAmount = this.dividerPulseAmplitude * 15;
-
-  //   // Line style - updated to match reddish-brown color from the image
-  //   g.lineStyle(6, 0x8b4513, 1);
-
-  //   const segments = [
-  //     { dir: -1, height: 18 },
-  //     { dir: 1, height: 20 },
-  //     { dir: -1, height: 22 },
-  //     { dir: 1, height: 18 },
-  //     { dir: -1, height: 14 },
-  //     { dir: 1, height: 16 },
-  //     { dir: -1, height: 12 },
-  //     { dir: 1, height: 10 },
-  //   ];
-
-  //   const waveSectionHeight = segments.reduce(
-  //     (sum, seg) => sum + seg.height,
-  //     0
-  //   );
-  //   const waveStartY = this.dividerWaveY - waveSectionHeight / 2;
-  //   const waveEndY = waveStartY + waveSectionHeight;
-
-  //   // Top line
-  //   g.beginPath();
-  //   g.moveTo(baseX, 0);
-  //   g.lineTo(baseX, waveStartY);
-  //   g.strokePath();
-
-  //   // Wave path - using Bezier curves for smoother curves
-  //   g.beginPath();
-  //   let y = waveStartY;
-  //   g.moveTo(baseX, y);
-
-  //   segments.forEach((seg) => {
-  //     const nextY = y + seg.height;
-  //     const offsetX = seg.dir * pulseAmount;
-
-  //     // Instead of quadraticCurveTo, use Phaser's bezierCurveTo
-  //     const controlX1 = baseX + offsetX;
-  //     const controlY1 = y + seg.height / 3;
-  //     const controlX2 = baseX + offsetX;
-  //     const controlY2 = y + (2 * seg.height) / 3;
-
-  //     g.bezierCurveTo(
-  //       controlX1,
-  //       controlY1, // first control point
-  //       controlX2,
-  //       controlY2, // second control point
-  //       baseX,
-  //       nextY // end point
-  //     );
-
-  //     y = nextY;
-  //   });
-
-  //   g.strokePath();
-
-  //   // Bottom line
-  //   g.beginPath();
-  //   g.moveTo(baseX, waveEndY);
-  //   g.lineTo(baseX, this.screenHeight);
-  //   g.strokePath();
-
-  //   // Optional: Add a small highlight dot like in the image
-  //   g.fillStyle(0xffff00, 0.8);
-  //   g.fillCircle(
-  //     baseX + segments[2].dir * pulseAmount * 0.8,
-  //     waveStartY + segments[0].height + segments[1].height / 2,
-  //     2
-  //   );
-  // }
-
-  // drawWaveToCanvas(text) {
-  //   const dynamicTexture = this.textures.get("waveTexture");
-  //   const canvas = dynamicTexture.getSourceImage();
-  //   const ctx = canvas.getContext("2d");
-  //   const canvasWidth = canvas.width;
-  //   const canvasHeight = canvas.height;
-
-  //   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-  //   const baseX = canvasWidth / 2;
-  //   const pulse = this.dividerPulseAmplitude * 15;
-
-  //   // Define segments (height and direction)
-  //   const segments = [
-  //     { dir: -1, height: 18 },
-  //     { dir: 1, height: 20 },
-  //     { dir: -1, height: 22 },
-  //     { dir: 1, height: 18 },
-  //     { dir: -1, height: 14 },
-  //     { dir: 1, height: 8 },
-  //   ];
-
-  //   const totalWaveHeight = segments.reduce((sum, seg) => sum + seg.height, 0);
-  //   const waveStartY = this.dividerWaveY - totalWaveHeight / 2;
-
-  //   // Start drawing the line
-  //   ctx.beginPath();
-  //   ctx.moveTo(baseX, 0);
-  //   ctx.lineTo(baseX, waveStartY);
-
-  //   let y = waveStartY;
-
-  //   segments.forEach((seg) => {
-  //     const midY = y + seg.height / 2;
-  //     const endY = y + seg.height;
-  //     const controlX = baseX + seg.dir * pulse;
-
-  //     ctx.quadraticCurveTo(controlX, midY, baseX, endY);
-  //     y = endY;
-  //   });
-
-  //   ctx.lineTo(baseX, canvasHeight);
-  //   ctx.strokeStyle = "#084d5a";
-  //   ctx.lineWidth = 6;
-  //   ctx.lineCap = "round";
-  //   ctx.stroke();
-
-  //   this.textures.get("waveTexture").refresh();
-  // }
   drawWaveToCanvas(
     textureKey = "waveTexture",
     ctxOverride = null,
     startDown = false,
     dividerY = this.dividerWaveY,
-    pulseAmp = this.dividerPulseAmplitude
+    pulseAmp = this.dividerPulseAmplitude,
+    showWave = true,
+    segments = null
   ) {
     const texture = this.textures.get(textureKey);
-    const ctx = ctxOverride || texture.getContext(); // ✅ not canvas.getContext()
+    const ctx = ctxOverride || texture.getContext();
     const canvas = texture.getSourceImage();
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
@@ -1098,9 +844,23 @@ class Level extends Phaser.Scene {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     const baseX = canvasWidth / 2;
-    const pulse = pulseAmp * 15;
 
-    const segments = [
+    if (!showWave) {
+      // draw straight divider line
+      ctx.beginPath();
+      ctx.moveTo(baseX, 0);
+      ctx.lineTo(baseX, canvasHeight);
+      ctx.strokeStyle = "#084d5a";
+      ctx.lineWidth = 6;
+      ctx.lineCap = "round";
+      ctx.stroke();
+      texture.refresh();
+      return;
+    }
+
+    const pulse = pulseAmp * 18; // zigzag amplitude
+
+    segments = segments || [
       { dir: startDown ? 1 : -1, height: 18 },
       { dir: startDown ? -1 : 1, height: 20 },
       { dir: startDown ? 1 : -1, height: 22 },
@@ -1110,24 +870,24 @@ class Level extends Phaser.Scene {
     ];
 
     const totalWaveHeight = segments.reduce((sum, seg) => sum + seg.height, 0);
-    const waveStartY = dividerY - totalWaveHeight / 2;
 
+    let currentY = 0;
     ctx.beginPath();
     ctx.moveTo(baseX, 0);
-    ctx.lineTo(baseX, waveStartY);
 
-    let y = waveStartY;
+    // Repeat segments from top to bottom
+    while (currentY < canvasHeight) {
+      let y = currentY;
+      segments.forEach((seg) => {
+        const midY = y + seg.height / 2;
+        const endY = y + seg.height;
+        const controlX = baseX + seg.dir * pulse;
+        ctx.quadraticCurveTo(controlX, midY, baseX, endY);
+        y = endY;
+      });
+      currentY += totalWaveHeight;
+    }
 
-    segments.forEach((seg) => {
-      const midY = y + seg.height / 2;
-      const endY = y + seg.height;
-      const controlX = baseX + seg.dir * pulse;
-
-      ctx.quadraticCurveTo(controlX, midY, baseX, endY);
-      y = endY;
-    });
-
-    ctx.lineTo(baseX, canvasHeight);
     ctx.strokeStyle = "#084d5a";
     ctx.lineWidth = 6;
     ctx.lineCap = "round";
@@ -1143,9 +903,6 @@ class Level extends Phaser.Scene {
     this.frameTime = this.frameTime * 0.99 + delta * 0.01;
     this.fps = ((1 / this.frameTime) * 1000).toFixed(1);
     this.fps_text.text = this.fps;
-    // this.fps_text.setText(
-    //   `FPS: ${this.fps}\nDividerY: ${this.dividerWaveY.toFixed(1)}`
-    // );
     this.lowFpsMode = this.fps < 30 ? true : false;
 
     if (Math.abs(this.scoreDisplay - this.score) > 1) {
@@ -1169,13 +926,8 @@ class Level extends Phaser.Scene {
           Math.abs(seek - pulseBeat.start) < pulseWindow &&
           (!this.lastDividerPulse || pulseBeat.start > this.lastDividerPulse)
         ) {
-          // this.dividerPulseAmplitude = 1;
-          // this.lastDividerPulse = pulseBeat.start;
-          // this.dividerWaveY -= this.waveStepAmount;
-          // if (this.dividerWaveY < 0) {
-          //   this.dividerWaveY = this.screenHeight;
-          // }
-          // this.waveActive = true;
+          this.randomizeSegmentsInPlace(this.leftSegments);
+          this.randomizeSegmentsInPlace(this.rightSegments);
           this.dividerPulseAmplitudeLeft = 1;
           this.dividerPulseAmplitudeRight = 1;
 
@@ -1187,34 +939,31 @@ class Level extends Phaser.Scene {
         }
       });
 
-      // this.dividerPulseAmplitude *= 0.9;
-      // this.drawDividerWithWaveform();
-      // this.drawWaveToCanvas();
+      const leftIsPulsing = this.dividerPulseAmplitudeLeft > 0.05;
+      const rightIsPulsing = this.dividerPulseAmplitudeRight > 0.05;
+
       this.drawWaveToCanvas(
         "waveTexture",
         this.waveCtx,
         false,
         this.dividerWaveYLeft,
-        this.dividerPulseAmplitudeLeft
+        this.dividerPulseAmplitudeLeft,
+        leftIsPulsing,
+        this.leftSegments
       );
       this.drawWaveToCanvas(
         "waveTextureRight",
         this.waveCtxRight,
         true,
         this.dividerWaveYRight,
-        this.dividerPulseAmplitudeRight
+        this.dividerPulseAmplitudeRight,
+        rightIsPulsing,
+        this.rightSegments
       );
       this.dividerPulseAmplitudeLeft *= 0.9;
       this.dividerPulseAmplitudeRight *= 0.9;
     }
     if (this.waveActive) {
-      // if (this.dividerWaveYLeft < -this.waveLength) {
-      //   this.dividerWaveYLeft = this.screenHeight;
-      // }
-
-      // if (this.dividerWaveYRight > this.screenHeight + this.waveLength) {
-      //   this.dividerWaveYRight = 0;
-      // }
       if (this.dividerWaveYLeft < -10) {
         this.dividerWaveYLeft = this.screenHeight;
       }
@@ -1223,50 +972,6 @@ class Level extends Phaser.Scene {
         this.dividerWaveYRight = 0;
       }
     }
-    // if (seek >= 0) {
-    //   this.pulseBeats.forEach((pulseBeat) => {
-    //     if (
-    //       Math.abs(seek - pulseBeat.start) < pulseWindow &&
-    //       (!this.lastDividerPulse || pulseBeat.start > this.lastDividerPulse)
-    //     ) {
-    //       this.lastDividerPulse = pulseBeat.start;
-
-    //       // ⬆️ Move up by wave length, then loop if off screen
-    //       this.dividerWaveYLeft -= this.waveLength;
-    //       if (this.dividerWaveYLeft < -this.waveLength) {
-    //         this.dividerWaveYLeft = this.screenHeight;
-    //       }
-
-    //       // ⬇️ Move down by wave length, then loop if off screen
-    //       this.dividerWaveYRight += this.waveLength;
-    //       if (this.dividerWaveYRight > this.screenHeight + this.waveLength) {
-    //         this.dividerWaveYRight = 0;
-    //       }
-
-    //       // Trigger pulse amplitude
-    //       this.dividerPulseAmplitudeLeft = 1;
-    //       this.dividerPulseAmplitudeRight = 1;
-    //     }
-    //   });
-    //   this.drawWaveToCanvas(
-    //     "waveTexture",
-    //     this.waveCtx,
-    //     false,
-    //     this.dividerWaveYLeft,
-    //     this.dividerPulseAmplitudeLeft
-    //   );
-    //   this.drawWaveToCanvas(
-    //     "waveTextureRight",
-    //     this.waveCtxRight,
-    //     true,
-    //     this.dividerWaveYRight,
-    //     this.dividerPulseAmplitudeRight
-    //   );
-
-    //   this.dividerPulseAmplitudeLeft *= 0.9;
-    //   this.dividerPulseAmplitudeRight *= 0.9;
-    // }
-
     if (seek >= 0) {
       if (
         this.soundMarkers.length > 0 &&
