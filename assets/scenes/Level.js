@@ -14,47 +14,75 @@ class Level extends Phaser.Scene {
   /** @returns {void} */
   editorCreate() {
     // gameplay_bg
-    this.add.image(180, 320, "plain_background");
+    const bG_1 = this.add.image(180, 320, "plain_background");
+    bG_1.scaleX = 0.3333;
+    bG_1.scaleY = 0.3333;
+    bG_1.alpha = 0.8;
+    bG_1.alphaTopLeft = 0.8;
+    bG_1.alphaTopRight = 0.8;
+    bG_1.alphaBottomLeft = 0.8;
+    bG_1.alphaBottomRight = 0.8;
 
+    const vignette = this.add.image(180, 320, "Vignette");
+    vignette.scaleX = 0.3333;
+    vignette.scaleY = 0.3333;
+    // vignette.setDepth(1.5);
     // top_banner
-    const top_banner = this.add.image(180, 175.5, "top_banner");
+    // const top_banner = this.add.image(180, 175.5, "top_banner");
 
     // artist_text
-    const artist_text = this.add.text(180, 33, "", {});
+    // const artist_text = this.add.text(180, 33, "", {});
+    // artist_text.setOrigin(0.5, 0.5);
+    // artist_text.text = "artist";
+    // artist_text.setStyle({
+    //   color: "#fdd557",
+    //   fontFamily: "Righteous-Regular",
+    //   fontSize: "7.5px",
+    //   stroke: "#fdd557",
+    // });
+
+    const artist_text = this.add.text(180, 44, "", {});
     artist_text.setOrigin(0.5, 0.5);
     artist_text.text = "artist";
-    artist_text.setStyle({
-      color: "#666363ff",
-      fontFamily: "Righteous-Regular",
-      fontSize: "7.5px",
-      stroke: "#666363ff",
-    });
+    artist_text.setStyle({ fontFamily: "Carlito-Bold", fontSize: "14px" });
 
     // song_name_text
-    const song_name_text = this.add.text(180, 45, "", {});
+    // const song_name_text = this.add.text(180, 45, "", {});
+    // song_name_text.setOrigin(0.5, 0.5);
+    // song_name_text.text = "song";
+    // song_name_text.setStyle({
+    //   align: "center",
+    //   color: "#fdd557",
+    //   fontFamily: "Righteous-Regular",
+    //   fontSize: "15px",
+    //   stroke: "#fdd557",
+    // });
+    const song_name_text = this.add.text(180, 27, "", {});
     song_name_text.setOrigin(0.5, 0.5);
     song_name_text.text = "song";
     song_name_text.setStyle({
       align: "center",
-      color: "#666363ff",
-      fontFamily: "Righteous-Regular",
+      color: "#1ba6b1",
+      fontFamily: "Carlito-Bold",
       fontSize: "15px",
-      stroke: "#666363ff",
+      stroke: "#1ba6b1",
     });
 
     // score_text
-    const score_text = this.add.text(180, 82, "", {});
+    const score_text = this.add.text(180, 80, "", {});
     score_text.setOrigin(0.5, 0.5);
     score_text.text = "000";
     score_text.setStyle({
-      color: "#666363ff",
-      fontFamily: "Righteous-Regular",
-      fontSize: "55px",
-      stroke: "#666363ff",
+      color: "#fcb320",
+      fontFamily: "Afolkalips",
+      fontSize: "65px",
+      stroke: "#fcb320",
     });
 
     // pause_btn
     const pause_btn = this.add.image(39, 39, "pause");
+    pause_btn.scaleX = 0.4;
+    pause_btn.scaleY = 0.4;
 
     // multiplier_text
     const multiplier_text = this.add.text(180, 116.91874449363797, "", {});
@@ -62,26 +90,84 @@ class Level extends Phaser.Scene {
     multiplier_text.text = "x1";
     multiplier_text.setStyle({
       align: "center",
-      color: "#666363ff",
+      color: "#fdd557",
       fontFamily: "DINPro",
       fontSize: "15px",
-      stroke: "#666363ff",
+      stroke: "#fdd557",
     });
 
     // tap_zone_area
     const tap_zone_area = this.add.image(181, 525, "tap_zone_area");
 
+    this.tap_zone_area = false;
+
     // divider_1
-    const divider_1 = this.add.image(121.5, 321, "divider_2");
+    // const divider_1 = this.add.image(121.5, 321, "divider_2");
 
     // divider_2
-    const divider_2 = this.add.image(238, 320, "divider_2");
+    // const divider_2 = this.add.image(238, 320, "divider_2");
 
-    // feedback_text
+    const gameHeight = this.cameras.main.height;
+    //pulsing divider
+    // this.divider_1 = this.add
+    //   .rectangle(
+    //     121.5, // x
+    //     gameHeight / 2, // y (center of screen)
+    //     3, // small width
+    //     gameHeight, // tall enough to span entire game height
+    //     0x045758
+    //   )
+    //   .setOrigin(0.5)
+    //   .setDepth(2.5);
+
+    // // Keep track of lastPulse on each divider for pulsing
+
+    // this.divider_2 = this.add
+    //   .rectangle(
+    //     238, // x
+    //     320,
+    //     3,
+    //     gameHeight,
+    //     0x045758
+    //   )
+    //   .setOrigin(0.5)
+    //   .setDepth(2.5);
+
+    // this.divider_2.lastPulse = 0;
+    // // feedback_text
     const feedback_text = this.add.image(180, 303, "perfect_popup");
     feedback_text.scaleX = 0.7;
     feedback_text.scaleY = 0.7;
     feedback_text.visible = false;
+
+    //DIVIDER
+    // this.divider_1 = this.add.image(
+    //   121.5,
+    //   this.cameras.main.height / 2,
+    //   "divider_1"
+    // );
+    // this.divider_1.setScale(0.5, 1);
+    // this.divider_1.setOrigin(0.5);
+    // this.divider_1.setDepth(2.5);
+
+    // this.divider_1.lastPulse = 0;
+
+    // this.leftWaveSprite = this.add.image(
+    //   this.divider_1.x,
+    //   this.cameras.main.height, // y - near the bottom
+    //   "wave" // your wave sprite key
+    // );
+    // this.leftWaveSprite.setScale(0.1, 0.1);
+    // this.leftWaveSprite.setVisible(true);
+    // this.leftWaveSprite.setOrigin(0.5, 1); // anchor at bottom center
+    // this.leftWaveSprite.setDepth(2.4); // slightly behind the divider if you prefer
+    // this.leftWaveSprite.setAlpha(0.7);
+    // this.leftWaveSprite.setScale(1, 1);
+
+    // this.leftWaveSprite.lastPulse = 0;
+
+    // this.dividerGraphics = this.add.graphics();
+    // this.dividerGraphics.setDepth(2.5);
 
     // overlay
     const overlay = this.add.image(180, 320, "overlay");
@@ -228,6 +314,29 @@ class Level extends Phaser.Scene {
     });
     streak_popup.add(streak_text);
 
+    const perfect_1 = this.add.image(60, 525, "Perfect_1");
+    perfect_1.alpha = 0.5;
+    perfect_1.alphaTopLeft = 0.5;
+    perfect_1.alphaTopRight = 0.5;
+    perfect_1.alphaBottomLeft = 0.5;
+    perfect_1.alphaBottomRight = 0.5;
+    perfect_1.setDepth(5);
+
+    // perfect_2
+    const perfect_2 = this.add.image(180, 525, "Perfect_2");
+    perfect_2.alpha = 0.5;
+    perfect_2.alphaTopLeft = 0.5;
+    perfect_2.alphaTopRight = 0.5;
+    perfect_2.alphaBottomLeft = 0.5;
+    perfect_2.alphaBottomRight = 0.5;
+
+    // perfect_3
+    const perfect_3 = this.add.image(300, 525, "Perfect_3");
+    perfect_3.alpha = 0.5;
+    perfect_3.alphaTopLeft = 0.5;
+    perfect_3.alphaTopRight = 0.5;
+    perfect_3.alphaBottomLeft = 0.5;
+    perfect_3.alphaBottomRight = 0.5;
     // sprite_1
     const sprite_1 = this.add.sprite(181, 522, "_MISSING");
     sprite_1.visible = false;
@@ -238,17 +347,27 @@ class Level extends Phaser.Scene {
     beats2.visible = false;
 
     // lists
-    const ui_layer = [multiplier_text, score_text, song_name_text, artist_text, top_banner];
+    const ui_layer = [
+      multiplier_text,
+      score_text,
+      song_name_text,
+      artist_text,
+      // top_banner,
+      perfect_1,
+      perfect_2,
+      perfect_3,
+    ];
 
-    this.top_banner = top_banner;
+    // this.top_banner = top_banner;
+    this.vignette = vignette;
     this.artist_text = artist_text;
     this.song_name_text = song_name_text;
     this.score_text = score_text;
     this.pause_btn = pause_btn;
     this.multiplier_text = multiplier_text;
     this.tap_zone_area = tap_zone_area;
-    this.divider_1 = divider_1;
-    this.divider_2 = divider_2;
+    // this.divider_1 = divider_1;
+    // this.divider_2 = divider_2;
     this.feedback_text = feedback_text;
     this.overlay = overlay;
     this.song_complete_text = song_complete_text;
@@ -266,7 +385,9 @@ class Level extends Phaser.Scene {
   }
 
   /** @type {Phaser.GameObjects.Image} */
-  top_banner;
+  // top_banner;
+  /** @type {Phaser.GameObjects.Image} */
+  vignette;
   /** @type {Phaser.GameObjects.Text} */
   artist_text;
   /** @type {Phaser.GameObjects.Text} */
@@ -314,7 +435,13 @@ class Level extends Phaser.Scene {
 
   init(data) {
     this.midi = data.midi;
+
+    console.log("midi header:", this.midi.header);
     this.track = data.track;
+
+    // console.log(this.midi.track[0].notes);
+    this.lineMarkers = [];
+
     if (this.sound.locked) {
       this.sound.unlock();
     }
@@ -337,6 +464,8 @@ class Level extends Phaser.Scene {
     console.log("Level.js create()");
     this.editorCreate();
 
+    console.log("Line Markers:", this.lineMarkers);
+
     this.soundTracker = 0;
 
     this.column = null;
@@ -345,6 +474,7 @@ class Level extends Phaser.Scene {
 
     this.tileGroup = null;
     this.tileClicked = false;
+    this.lineGroup = null; // Group for falling lines.
 
     this.score = 0;
     this.scoreDisplay = 0;
@@ -370,13 +500,20 @@ class Level extends Phaser.Scene {
     this.screenCenterY = this.cameras.main.worldView.y + this.screenHeight / 2;
 
     this.soundMarkers = [];
+    this.pulseBeats = [];
+    // this.rightPulseMarkers = [];
 
     this.tileDuration = this.midi.tracks[0].notes[0].velocity * 5 || 1.4;
+    this.lineDuration = this.tileDuration;
 
+    this.f2Beats = [];
     this.midi.tracks.forEach((track) => {
       const notes = track.notes;
 
+      console.log("Track Notes:", track.notes);
+
       notes.forEach((note, idx) => {
+        console.log(`Note ${idx}:`, note.name, "Velocity:", note.velocity);
         if ((note.name == "F#3") | (note.name == "G#3") | (note.name == "A#3"))
           this.soundMarkers.push({
             name: `"marker_${idx}"`,
@@ -386,6 +523,29 @@ class Level extends Phaser.Scene {
             duration: note.duration,
             config: { loop: false },
           });
+        if (note.name === "C3" && note.velocity === 1.0) {
+          // Store when lines should appear
+          this.lineMarkers.push({
+            name: `lineMarker _${idx}`,
+            start: note.time,
+          });
+        }
+        if (note.name === "C2") {
+          this.pulseBeats.push({
+            start: note.time,
+          });
+
+          //sort pulses by time
+          this.pulseBeats.sort((a, b) => a.start - b.start);
+
+          //Label each beat with an integer index
+          this.pulseBeats.forEach((beatObj, i) => {
+            beatObj.index = i;
+          });
+        }
+        if (note.name === "F2") {
+          this.f2Beats.push(note.time);
+        }
       });
     });
 
@@ -397,7 +557,10 @@ class Level extends Phaser.Scene {
         (this.totalTiles - this.streakThreshold) * 5);
     this.currentMultiplier = 1;
     this.progress = 0;
-
+    this.createLineGroup();
+    //Pulse lines
+    // this.leftPulseGroup = this.add.group();
+    // this.rightPulseGroup = this.add.group();
     this.countDown();
 
     this.events.on("resume", () => {
@@ -413,16 +576,21 @@ class Level extends Phaser.Scene {
       this.scene.launch("Pause");
     });
 
-    this.tapZone = this.add
-      .image(this.screenCenterX, this.screenHeight * this.tileTarget, "tapZone")
-      .setOrigin(0.5);
+    // this.tapZone = this.add
+    //   .image(this.screenCenterX, this.screenHeight * this.tileTarget, "tapZone")
+    //   .setOrigin(0.5);
 
     this.ui_layer.forEach((asset) => {
       asset.setDepth(4);
     });
 
-    this.divider_1.setDepth(2.5);
-    this.divider_2.setDepth(2.5);
+    // this.tapZone = false;
+
+    // this.divider_1.setDepth(2);
+    // this.divider_2.setDepth(2);
+
+    // this.divider_1.setAlpha(0.3);
+    // this.divider_2.setAlpha(0.3);
 
     this.path = this.add
       .rectangle(0, 0, this.screenWidth / 3, this.screenHeight, 0x90ee90)
@@ -441,13 +609,18 @@ class Level extends Phaser.Scene {
       .setDepth(10);
 
     this.multiplier_emitter = this.add
-      .particles(this.multiplier_text.x, this.multiplier_text.y, "Play_active", {
-        lifespan: 750,
-        speed: { min: 50, max: 100 },
-        scale: { start: 0.5, end: 0 },
-        blendMode: "ADD",
-        emitting: false,
-      })
+      .particles(
+        this.multiplier_text.x,
+        this.multiplier_text.y,
+        "Play_active",
+        {
+          lifespan: 750,
+          speed: { min: 50, max: 100 },
+          scale: { start: 0.5, end: 0 },
+          blendMode: "ADD",
+          emitting: false,
+        }
+      )
       .setDepth(10);
 
     // let rect = this.add
@@ -470,6 +643,340 @@ class Level extends Phaser.Scene {
       fontSize: "13px",
       stroke: "#666363ff",
     });
+
+    this.dividerWaveYLeft = this.screenHeight / 2;
+    this.dividerWaveYRight = this.screenHeight / 2;
+    this.waveStepAmount = 20;
+
+    this.waveActive = false;
+    this.dividerPulseAmplitudeLeft = 0;
+    this.dividerPulseAmplitudeRight = 0;
+
+    this.dividerX = 121.5;
+
+    //Wave canvas
+    this.waveCanvas = document.createElement("canvas");
+    this.waveCanvas.width = 50; // or any width you want
+    this.waveCanvas.height = this.screenHeight;
+    this.waveCtx = this.waveCanvas.getContext("2d");
+
+    //Left divider wave
+    this.textures.createCanvas(
+      "waveTexture",
+      this.waveCanvas.width,
+      this.waveCanvas.height
+    );
+
+    this.waveTexture = this.textures.get("waveTexture");
+    this.waveCtx = this.waveTexture.getContext();
+
+    //right divider  wave
+    this.textures.createCanvas(
+      "waveTextureRight",
+      this.waveCanvas.width,
+      this.waveCanvas.height
+    );
+
+    this.waveTextureRight = this.textures.get("waveTextureRight");
+    this.waveCtxRight = this.waveTextureRight.getContext();
+
+    this.drawWaveToCanvas(); // initial render
+
+    this.waveSprite = this.add
+      .image(this.dividerX, 0, "waveTexture")
+      .setOrigin(0.5, 0)
+      .setDepth(2.5);
+
+    this.waveSpriteRight = this.add
+      .image(238, 0, "waveTextureRight")
+      .setOrigin(0.5, 0)
+      .setDepth(2.5);
+
+    this.leftSegments = [
+      { dir: -1, height: 18 },
+      { dir: 1, height: 20 },
+      { dir: -1, height: 22 },
+      { dir: 1, height: 18 },
+      { dir: -1, height: 14 },
+      { dir: 1, height: 8 },
+    ];
+
+    this.rightSegments = [
+      { dir: 1, height: 18 },
+      { dir: -1, height: 20 },
+      { dir: 1, height: 22 },
+      { dir: -1, height: 18 },
+      { dir: 1, height: 14 },
+      { dir: -1, height: 8 },
+    ];
+    this.waveThickness = 4;
+    this.lastF2Pulse = -999;
+  }
+
+  createLineGroup() {
+    this.lineGroup = this.add.group();
+  }
+
+  spawnLine(marker) {
+    if (!this.lineGroup) return;
+
+    let line = this.add.image(this.screenCenterX, 0, "rythm_line");
+
+    line.setDepth(2);
+    line.setAlpha(0.5);
+    line.start = marker.start;
+    line.lastPulse = 0;
+    this.lineGroup.add(line);
+  }
+
+  updateWhiteLines(seek) {
+    while (
+      this.lineMarkers.length > 0 &&
+      // seek >= this.lineMarkers[0].start - this.lineDuration
+      seek >= this.lineMarkers[0].start - 2 * this.lineDuration
+    ) {
+      let lineMarker = this.lineMarkers.shift();
+      this.spawnLine(lineMarker);
+    }
+
+    if (seek < 0) {
+      return;
+    }
+    // 2) Move each existing line
+    this.lineGroup.getChildren().forEach((line) => {
+      // Fraction of progress
+      let lineLerp = Math.max(
+        0,
+        (seek - line.start + this.lineDuration) / this.lineDuration
+      );
+
+      let startY = 0;
+      let targetY = this.screenHeight * this.tileTarget;
+      let bottomY = this.screenHeight;
+
+      // Move from 0..targetY up to lineLerp=1
+      let adjustedY = Phaser.Math.Linear(startY, targetY, lineLerp);
+
+      // If we've passed tileTarget, keep going down to bottom
+      if (adjustedY >= targetY) {
+        let progressPastTarget = (adjustedY - targetY) / (bottomY - targetY);
+        adjustedY = Phaser.Math.Linear(targetY, bottomY, progressPastTarget);
+      }
+
+      line.setY(adjustedY);
+
+      if (adjustedY >= bottomY) {
+        line.destroy();
+      }
+    });
+  }
+
+  drawWaveToCanvas(
+    textureKey = "waveTexture",
+    ctxOverride = null,
+    startDown = false,
+    dividerY = this.dividerWaveY,
+    pulseAmp = this.dividerPulseAmplitude,
+    showWave = true,
+    segments = null
+  ) {
+    const texture = this.textures.get(textureKey);
+    const ctx = ctxOverride || texture.getContext();
+    const canvas = texture.getSourceImage();
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    // Clear existing content
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    const baseX = canvasWidth / 2;
+
+    // If `showWave` is false, just draw a straight line instead of a wave
+    if (!showWave) {
+      ctx.beginPath();
+      ctx.moveTo(baseX, 0);
+      ctx.lineTo(baseX, canvasHeight);
+      ctx.strokeStyle = "rgba(8, 77, 90, 0.3)";
+      ctx.lineWidth = this.waveThickness;
+      ctx.lineCap = "round";
+      ctx.stroke();
+      texture.refresh();
+      return;
+    }
+
+    // This amplitude scales up with your pulsing logic
+    const amplitude = pulseAmp * 18;
+
+    // How many segments to make the line smoother
+    // Feel free to tweak higher/lower for more/less detail
+    const segmentCount = 20;
+    const segmentHeight = canvasHeight / segmentCount;
+
+    // Decide initial left vs. right zigzag
+    // (If `startDown` is true, we can flip the sign to invert initial direction)
+    let direction = startDown ? 1 : -1;
+
+    ctx.beginPath();
+    ctx.moveTo(baseX, 0);
+
+    for (let i = 0; i < segmentCount; i++) {
+      const startY = i * segmentHeight;
+      const midY = startY + segmentHeight / 2;
+      const endY = (i + 1) * segmentHeight;
+
+      // Randomize each segment a bit so it doesn’t look too rigid
+      const randomFactor = Phaser.Math.FloatBetween(0.8, 1.0);
+      const offset = amplitude * randomFactor;
+
+      // Control point’s X is offset left or right from baseX
+      const controlX = baseX + direction * offset;
+
+      // Draw one quadratic curve from (baseX, startY) to (baseX, endY)
+      // using (controlX, midY) as the control point
+      ctx.quadraticCurveTo(controlX, midY, baseX, endY);
+
+      // Flip direction each segment, so it zigzags left, then right, etc.
+      direction *= -1;
+    }
+
+    ctx.strokeStyle = "rgba(8, 77, 90, 0.3)";
+    ctx.lineWidth = this.waveThickness;
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    // Refresh so Phaser sees the new canvas image
+    texture.refresh();
+  }
+
+  updateWaveLogic(seek, delta) {
+    // If the music isn’t started or seek < 0, nothing to do
+    if (seek < 0) return;
+
+    const pulseWindow = 0.1;
+
+    // 1) Check regular pulses (C2 or whatever you had as “pulseBeats”)
+    this.pulseBeats.forEach((pulseBeat) => {
+      if (
+        Math.abs(seek - pulseBeat.start) < pulseWindow &&
+        (!this.lastDividerPulse || pulseBeat.start > this.lastDividerPulse)
+      ) {
+        // Create a fresh set of segments for both sides
+        this.leftSegments = this.generateRandomSegments((10, 30));
+        this.rightSegments = this.generateRandomSegments((10, 30));
+
+        // Keep amplitude / wave step logic as before
+        this.dividerPulseAmplitudeLeft = 1;
+        this.dividerPulseAmplitudeRight = 1;
+
+        this.dividerWaveYLeft -= this.waveStepAmount;
+        this.dividerWaveYRight += this.waveStepAmount;
+
+        this.waveActive = true;
+        this.lastDividerPulse = pulseBeat.start;
+      }
+    });
+
+    // 2) Check the F2 “thickness” pulses
+    this.f2Beats.forEach((beatTime) => {
+      if (
+        Math.abs(seek - beatTime) < pulseWindow &&
+        (!this.lastF2Pulse || beatTime > this.lastF2Pulse)
+      ) {
+        // We haven't pulsed for this F2 yet
+        this.lastF2Pulse = beatTime;
+        // Tween waveThickness from 6 --> 12 --> 6
+        this.tweens.add({
+          targets: this, // 'this' = the scene
+          waveThickness: 12, // from your normal 6 up to 12
+          duration: 100, // short tween up
+          ease: "Sine.easeOut",
+          yoyo: true, // then back down
+          onUpdate: () => {
+            // Redraw left wave
+            this.drawWaveToCanvas(
+              "waveTexture",
+              this.waveCtx,
+              false,
+              this.dividerWaveYLeft,
+              this.dividerPulseAmplitudeLeft,
+              true,
+              this.leftSegments
+            );
+            // Redraw right wave
+            this.drawWaveToCanvas(
+              "waveTextureRight",
+              this.waveCtxRight,
+              true,
+              this.dividerWaveYRight,
+              this.dividerPulseAmplitudeRight,
+              true,
+              this.rightSegments
+            );
+          },
+          onComplete: () => {
+            // Make sure it ends back at 6
+            this.waveThickness = 6;
+            // Final redraw
+            this.drawWaveToCanvas(
+              "waveTexture",
+              this.waveCtx,
+              false,
+              this.dividerWaveYLeft,
+              this.dividerPulseAmplitudeLeft,
+              true,
+              this.leftSegments
+            );
+            this.drawWaveToCanvas(
+              "waveTextureRight",
+              this.waveCtxRight,
+              true,
+              this.dividerWaveYRight,
+              this.dividerPulseAmplitudeRight,
+              true,
+              this.rightSegments
+            );
+          },
+        });
+      }
+    });
+
+    // 3) Gradually decrease amplitude after each pulse
+    const leftIsPulsing = this.dividerPulseAmplitudeLeft > 0.05;
+    const rightIsPulsing = this.dividerPulseAmplitudeRight > 0.05;
+
+    // Re-draw with current amplitude
+    this.drawWaveToCanvas(
+      "waveTexture",
+      this.waveCtx,
+      false,
+      this.dividerWaveYLeft,
+      this.dividerPulseAmplitudeLeft,
+      leftIsPulsing,
+      this.leftSegments
+    );
+    this.drawWaveToCanvas(
+      "waveTextureRight",
+      this.waveCtxRight,
+      true,
+      this.dividerWaveYRight,
+      this.dividerPulseAmplitudeRight,
+      rightIsPulsing,
+      this.rightSegments
+    );
+
+    // Slowly decay amplitude
+    this.dividerPulseAmplitudeLeft *= 0.9;
+    this.dividerPulseAmplitudeRight *= 0.9;
+
+    // 4) Move waves up or down if waveActive
+    if (this.waveActive) {
+      if (this.dividerWaveYLeft < -10) {
+        this.dividerWaveYLeft = this.screenHeight;
+      }
+      if (this.dividerWaveYRight > this.screenHeight + 10) {
+        this.dividerWaveYRight = 0;
+      }
+    }
   }
 
   update(time, delta) {
@@ -482,14 +989,25 @@ class Level extends Phaser.Scene {
     this.lowFpsMode = this.fps < 30 ? true : false;
 
     if (Math.abs(this.scoreDisplay - this.score) > 1) {
-      this.scoreDisplay = Phaser.Math.Linear(this.scoreDisplay, this.score, 0.1);
+      this.scoreDisplay = Phaser.Math.Linear(
+        this.scoreDisplay,
+        this.score,
+        0.1
+      );
       this.score_text.setText(`${Math.trunc(this.scoreDisplay)}`);
     }
 
     let seek = this.music?.seek;
+    // console.log("Wave pulse triggered at", seek);
+    this.updateWhiteLines(seek);
+
+    this.updateWaveLogic(seek, delta);
 
     if (seek >= 0) {
-      if (this.soundMarkers.length > 0 && seek + this.tileDuration >= this.soundMarkers[0].start) {
+      if (
+        this.soundMarkers.length > 0 &&
+        seek + this.tileDuration >= this.soundMarkers[0].start
+      ) {
         var marker = this.soundMarkers.shift();
         this.creatOneDrum(marker);
       }
@@ -499,12 +1017,19 @@ class Level extends Phaser.Scene {
 
         if (!tile.stopLerp) {
           // Only update lerp if stopLerp is false
-          tile.lerp = Math.max(0, (seek - tile.start + this.tileDuration) / this.tileDuration);
+          tile.lerp = Math.max(
+            0,
+            (seek - tile.start + this.tileDuration) / this.tileDuration
+          );
         }
 
         if (!tile.held) {
           // Only update position if not held
-          let tileY = Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp);
+          let tileY = Phaser.Math.Linear(
+            0,
+            this.screenHeight * this.tileTarget,
+            tile.lerp
+          );
           tile.setY(tileY);
 
           if (tile.aestheticImage) {
@@ -516,6 +1041,19 @@ class Level extends Phaser.Scene {
         }
       });
     }
+  }
+
+  generateRandomSegments(segmentCount = 12) {
+    const segments = [];
+    for (let i = 0; i < segmentCount; i++) {
+      // Random direction ±1
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      // Random height in some range (tweak as you like)
+      const height = Phaser.Math.Between(8, 30);
+
+      segments.push({ dir, height });
+    }
+    return segments;
   }
 
   creatOneDrum(marker) {
@@ -663,12 +1201,16 @@ class Level extends Phaser.Scene {
 
     let normalizationFactor = slope * tileDuration + intercept;
 
-    let heldTileScaleFactor = 1 + Math.log1p(duration) / Math.log1p(normalizationFactor);
+    let heldTileScaleFactor =
+      1 + Math.log1p(duration) / Math.log1p(normalizationFactor);
     return heldTileScaleFactor;
   }
 
   handleHeldTile(tile, duration) {
-    let heldTileScaleFactor = this.calculateHeldTileScaleFactor(duration, this.tileDuration);
+    let heldTileScaleFactor = this.calculateHeldTileScaleFactor(
+      duration,
+      this.tileDuration
+    );
     let initialScaleY = heldTileScaleFactor * duration;
 
     tile.setScale(1, initialScaleY);
@@ -739,7 +1281,11 @@ class Level extends Phaser.Scene {
     // }
 
     // For tiles that aren't currently held, update as before
-    let tileY = Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp);
+    let tileY = Phaser.Math.Linear(
+      0,
+      this.screenHeight * this.tileTarget,
+      tile.lerp
+    );
     tile.setY(tileY);
 
     if (tile.aestheticImage) {
@@ -765,9 +1311,14 @@ class Level extends Phaser.Scene {
     this.music = this.sound.add(`${this.songItem}`, { volume: 1 });
 
     this.music.play({ delay: 0.5 });
+    // this.music.play()ŸŸ
 
     this.music.on("play", () => {
       this.isSoundPlaying = true;
+
+      this.lineGroup.getChildren().forEach((line) => {
+        line.setVisible(true);
+      });
     });
 
     this.music.on("complete", () => {
@@ -986,7 +1537,9 @@ class Level extends Phaser.Scene {
     }
 
     if (this.progress >= this.streakThreshold) {
-      this.streak_text.setText(`${this.streakThreshold * this.currentMultiplier} STREAK`);
+      this.streak_text.setText(
+        `${this.streakThreshold * this.currentMultiplier} STREAK`
+      );
       this.streakDisplay();
       this.progress = 0;
       this.currentMultiplier += 1;

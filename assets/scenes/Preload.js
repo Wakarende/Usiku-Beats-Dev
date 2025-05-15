@@ -108,10 +108,8 @@ class Preload extends Phaser.Scene {
       this.loading.scaleX = p + 0.66;
     });
 
-
     this.editorPreload();
   }
-
   async create() {
     console.log("Preload.js create()");
     // console.log(this.song_list);
@@ -120,38 +118,28 @@ class Preload extends Phaser.Scene {
 
     this.midi = await Midi.fromUrl(`assets/sounds/test.mid`);
 
-    this.loading_txt.setVisible(false)
-    this.loading.setVisible(false)
+    this.loading_txt.setVisible(false);
+    this.loading.setVisible(false);
 
     this.play_button.setVisible(true);
     this.play_text.setVisible(true);
-
 
     this.track = {
       image_asset: "carousel_2",
       artist_name: "Test Artist",
       song_name: "test",
-      maximum_score: 0
-    }
+      maximum_score: 0,
+    };
 
-
-    this.play_button.setInteractive()
-    this.play_button.on("pointerup", ()=>{
-
+    this.play_button.setInteractive();
+    this.play_button.on("pointerup", () => {
       // // this.scale.startFullscreen();
       // this.scene.start("BrandingTransitionScene", {
       //   track: this.track,
       // });
 
       this.scene.start("Level", { track: this.track, midi: this.midi });
-
-
-
-    })
-
-
-    
-
+    });
     // this.scene.start("EpisodeSelect", {song_list: this.song_list});
   }
 
