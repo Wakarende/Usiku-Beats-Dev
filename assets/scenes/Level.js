@@ -1320,7 +1320,7 @@ class Level extends Phaser.Scene {
     ninesliceTile.start = tile.start;
     ninesliceTile.duration = duration;
     ninesliceTile.initialHeight = initialHeight;
-    ninesliceTile.setDepth(2.8);
+    ninesliceTile.setDepth(4);
     ninesliceTile.tileType = "held";
   
     // Variables to track hold duration
