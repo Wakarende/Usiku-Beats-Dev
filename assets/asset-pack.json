@@ -12,6 +12,11 @@
         "key": "arrow"
       },
       {
+        "url": "assets/sprites/playscene/new_held.png",
+        "type": "image",
+        "key": "new_held"
+    },
+      {
         "url": "assets/sprites/bufferscene/Banner BG.png",
         "type": "image",
         "key": "Banner BG"
@@ -257,6 +262,16 @@
         "key": "streak_overlay"
       },
       {
+        "url": "assets/sprites/playscene/Right.png",
+        "type": "image", 
+        "key": "Right"
+      },
+      {
+        "url": "assets/sprites/playscene/Spot_icon.png",
+        "type": "image",
+        "key": "Spot_icon"
+      },
+      {
         "url": "assets/sprites/playscene/down_swipe.png",
         "type": "image",
         "key": "swipe_down"
@@ -332,7 +347,27 @@
         "key": "Thumbnail_Screen Swipe_Sfx"
       },
       {
-        "url": "assets/sprites/playscene/tile_active_copy.png",
+        "url": "assets/sprites/playscene/Tile 1.png",
+        "type": "image",
+        "key": "Tile 1"
+      },
+      {
+        "url": "assets/sprites/playscene/Tile 2.png",
+        "type": "image",
+        "key": "Tile 2"
+      },
+      {
+        "url": "assets/sprites/playscene/Tile 3.png",
+        "type": "image",
+        "key": "Tile 3"
+      },
+      {
+        "url": "assets/sprites/playscene/Tile 4.png",
+        "type": "image",
+        "key": "Tile 4"
+      },
+      {
+        "url": "assets/sprites/playscene/tile_active.png",
         "type": "image",
         "key": "tile_active"
       },

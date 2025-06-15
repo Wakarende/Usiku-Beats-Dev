@@ -461,6 +461,20 @@ class Level extends Phaser.Scene {
   }
 
   create() {
+    this.time.addEvent({
+      delay : 1000,
+      loop  : true,
+      callback : () => {
+          const leftovers = this.children.list
+            .filter(g => ["spot_icon","Right"].includes(g.texture?.key));
+  
+          console.log(
+            `⏱  Survivors = ${leftovers.length}`,
+            leftovers.map(o => ({ key:o.texture.key, x:o.x, y:o.y }))
+          );
+      }
+  });
+  
     console.log("Level.js create()");
     this.editorCreate();
 
@@ -501,7 +515,7 @@ class Level extends Phaser.Scene {
 
     this.soundMarkers = [];
     this.pulseBeats = [];
-    // this.rightPulseMarkers = [];
+    
 
     this.tileDuration = this.midi.tracks[0].notes[0].velocity * 5 || 1.4;
     this.lineDuration = this.tileDuration;
@@ -558,9 +572,7 @@ class Level extends Phaser.Scene {
     this.currentMultiplier = 1;
     this.progress = 0;
     this.createLineGroup();
-    //Pulse lines
-    // this.leftPulseGroup = this.add.group();
-    // this.rightPulseGroup = this.add.group();
+    
     this.countDown();
 
     this.events.on("resume", () => {
@@ -576,21 +588,12 @@ class Level extends Phaser.Scene {
       this.scene.launch("Pause");
     });
 
-    // this.tapZone = this.add
-    //   .image(this.screenCenterX, this.screenHeight * this.tileTarget, "tapZone")
-    //   .setOrigin(0.5);
-
+    
     this.ui_layer.forEach((asset) => {
       asset.setDepth(4);
     });
 
-    // this.tapZone = false;
-
-    // this.divider_1.setDepth(2);
-    // this.divider_2.setDepth(2);
-
-    // this.divider_1.setAlpha(0.3);
-    // this.divider_2.setAlpha(0.3);
+   
 
     this.path = this.add
       .rectangle(0, 0, this.screenWidth / 3, this.screenHeight, 0x90ee90)
@@ -623,16 +626,7 @@ class Level extends Phaser.Scene {
       )
       .setDepth(10);
 
-    // let rect = this.add
-    //   .rectangle(
-    //     this.screenCenterX,
-    //     this.screenHeight * this.tileTarget,
-    //     this.screenWidth,
-    //     2,
-    //     0x00f000,
-    //     1
-    //   )
-    //   .setDepth(100);
+    
     this.fps_text = this.add.text(this.screenWidth - 20, 20, "", {});
 
     this.fps_text.setOrigin(1, 0).setDepth(100);
@@ -711,6 +705,25 @@ class Level extends Phaser.Scene {
     ];
     this.waveThickness = 4;
     this.lastF2Pulse = -999;
+
+    this.tileEmitter = this.add
+  .particles(0, 0, "particle", {  // Note: your dev uses "particle", prod uses "particle_1"
+    speed: { min: 50, max: 250 },
+    angle: { min: 0, max: 360 },
+    scale: { start: 1.2, end: 0 },
+    blendMode: "ADD",
+    lifespan: 500,
+    gravityY: 300,
+    emitting: false,
+  })
+  .setDepth(10);
+
+  this.baseTileTextures = [
+    "Tile 1",
+    "Tile 2", 
+    "Tile 3",
+    "Tile 4"
+  ];
   }
 
   createLineGroup() {
@@ -1013,34 +1026,25 @@ class Level extends Phaser.Scene {
       }
 
       this.tileGroup.getChildren().forEach((tile) => {
-        if (tile.swiped) return;
-
-        if (!tile.stopLerp) {
-          // Only update lerp if stopLerp is false
-          tile.lerp = Math.max(
-            0,
-            (seek - tile.start + this.tileDuration) / this.tileDuration
-          );
+        if (tile.swiped || tile.held) return;
+      
+        tile.lerp = Math.max(0, (seek - tile.start + this.tileDuration) / this.tileDuration);
+      
+        // Update both base and overlay positions
+        tile.setY(Phaser.Math.Linear(0, this.screenHeight * this.tileTarget, tile.lerp));
+        tile.setAlpha(tile.lerp);
+      
+        if (tile.overlayTile) {
+          tile.overlayTile.setY(tile.y);
+          tile.overlayTile.setAlpha(tile.lerp);
         }
-
-        if (!tile.held) {
-          // Only update position if not held
-          let tileY = Phaser.Math.Linear(
-            0,
-            this.screenHeight * this.tileTarget,
-            tile.lerp
-          );
-          tile.setY(tileY);
-
-          if (tile.aestheticImage) {
-            tile.aestheticImage.setY(tileY - tile.displayHeight / 3);
-            tile.aestheticImage.setAlpha(tile.lerp);
-          }
-
-          tile.setAlpha(tile.lerp);
+      
+        if (tile.y > this.screenHeight * this.tileTarget) {
+          // this.checkOverlap(tile);
         }
       });
     }
+
   }
 
   generateRandomSegments(segmentCount = 12) {
@@ -1060,18 +1064,34 @@ class Level extends Phaser.Scene {
     let tilePath = marker.path;
     let velocity = marker.velocity;
     let duration = marker.duration;
-
+  
+    // Create base aesthetic tile with random texture
     let tile = this.tileGroup
-      .create(0, 0, "beats2")
+      .create(0, 0, this.baseTileTextures[Math.floor(Math.random() * this.baseTileTextures.length)])
       .setOrigin(0.5, 0.5)
       .setInteractive()
-      .setAlpha(0.2)
+      .setAlpha(0)
       .setDepth(4);
-
+  
+    // Create overlay tile that moves with the base
+    let overlayTile = this.add
+      .image(0, 0, "beats2") // Will be changed in placeTile
+      .setOrigin(0.5, 0.5)
+      .setAlpha(0)
+      .setDepth(4.1)
+      .setScale(0.3);
+      
+    // Link the overlay to the base tile
+    tile.overlayTile = overlayTile;
+  
     tile.start = marker.start;
     tile.body.immovable = true;
     this.placeTile(tile, tilePath, velocity, duration);
+    tile.once('destroy', () =>{
+      overlayTile.destroy();
+    })
   }
+
 
   placeTile(tile, tilePath, velocity, duration) {
     let left = (this.screenWidth / 6) * 1;
@@ -1100,98 +1120,104 @@ class Level extends Phaser.Scene {
         break;
     }
 
-    tile.laneX = tile.x;
+    // Position overlay at same x coordinate
+    tile.overlayTile.setX(tile.x);
 
+    tile.laneX = tile.x;
     tile.swiped = false;
 
-    let swipe = this.rexGestures.add.swipe(tile, swipeConfig);
+    // Define swipe configurations
+    const swipeDirections = {
+      0.23622047244094488: {
+        direction: "up",
+        texture: "Right",
+        angle: -90,
+        validSwipes: ["up"],
+      },
+      0.3937007874015748: {
+        direction: "right",
+        texture: "Right",
+        angle: 0,
+        validSwipes: ["right"],
+      },
+      0.7086614173228346: {
+        direction: "left",
+        texture: "Right",
+        angle: 180,
+        validSwipes: ["left"],
+      },
+      0.5511811023622047: {
+        direction: "down",
+        texture: "Right",
+        angle: 90,
+        validSwipes: ["down"],
+      },
+      0.7874015748031497: {
+        direction: "upleft",
+        texture: "Right",
+        angle: -135,
+        validSwipes: ["up", "left"],
+      },
+      0.31496062992125984: {
+        direction: "upright",
+        texture: "Right",
+        angle: -45,
+        validSwipes: ["up", "right"],
+      },
+      0.6299212598425197: {
+        direction: "downleft",
+        texture: "Right",
+        angle: 135,
+        validSwipes: ["down", "left"],
+      },
+      0.47244094488188976: {
+        direction: "downright",
+        texture: "Right",
+        angle: 45,
+        validSwipes: ["down", "right"],
+      },
+    };
 
-    switch (velocity) {
-      case 0.23622047244094488:
-        tile.setTexture("swipe_up");
+    const swipeDirection = swipeDirections[velocity];
 
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.up) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
+    if (swipeDirection) {
+      tile.tileType = "swipe";
+      // Set the overlay texture and angle based on swipe direction
+      tile.overlayTile.setTexture(swipeDirection.texture);
+      tile.overlayTile.setAngle(swipeDirection.angle);
 
-      case 0.3937007874015748:
-        tile.setTexture("swipe_right");
+      let swipe = this.rexGestures.add.swipe(tile, swipeConfig);
 
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.right) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
-      case 0.7086614173228346:
-        tile.setTexture("swipe_left");
+      swipe.on("swipe", (swipe, gameObject, lastPointer) => {
+        const isValidSwipe = swipeDirection.validSwipes.every(
+          (direction) =>
+            (direction === "up" && swipe.up) ||
+            (direction === "down" && swipe.down) ||
+            (direction === "left" && swipe.left) ||
+            (direction === "right" && swipe.right)
+        );
 
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.left) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
-      case 0.5511811023622047:
-        tile.setTexture("swipe_down");
+        if (isValidSwipe) {
+          this.handleSwipe(tile, swipe, swipeDirection.direction);
+        }
+      });
+    } else if (velocity === 0.007874015748031496) {
+      // Set default overlay texture for held notes
+      // tile.overlayTile.setTexture("Hold");
+      tile.tileType = "held";
+      this.handleHeldTile(tile, duration);
+    } else {
+      tile.tileType = "tap";
+      // Set default overlay texture for regular notes
+      tile.overlayTile.setTexture("Spot_icon");
 
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.down) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
-      case 0.7874015748031497:
-        tile.setTexture("swipe_up_left");
+      tile.on("pointerup", () => {
+        this.tileClicked = false;
+      });
 
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.up) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
-      case 0.31496062992125984:
-        tile.setTexture("swipe_up_right");
-
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.up) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
-      case 0.6299212598425197:
-        tile.setTexture("swipe_down_left");
-
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.down) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
-      case 0.47244094488188976:
-        tile.setTexture("swipe_down_right");
-
-        swipe.on("swipe", (swipe, gameObject, lastPointer) => {
-          if (swipe.down) {
-            this.handleSwipe(tile, swipe);
-          }
-        });
-        break;
-      case 0.007874015748031496:
-        this.handleHeldTile(tile, duration);
-        break;
-
-      default:
-        tile.on("pointerup", () => {
-          this.tileClicked = false;
-        });
-        tile.on("pointerdown", () => {
-          this.onClickInstrument(tile);
-        });
-        break;
+      tile.on("pointerdown", () => {
+        this.onClickInstrument(tile);
+      });
     }
   }
 
@@ -1206,70 +1232,243 @@ class Level extends Phaser.Scene {
     return heldTileScaleFactor;
   }
 
+  // handleHeldTile(tile, duration) {
+  //   let heldTileScaleFactor = this.calculateHeldTileScaleFactor(
+  //     duration,
+  //     this.tileDuration
+  //   );
+  //   let initialScaleY = heldTileScaleFactor * duration;
+
+  //   tile.setScale(1, initialScaleY);
+
+  //   let originalHeight = tile.height;
+  //   let scaledHeight = tile.displayHeight;
+  //   let originalOriginY = tile.originY;
+
+  //   let newOriginY = (originalOriginY * originalHeight) / scaledHeight;
+  //   newOriginY = 1 - newOriginY;
+  //   tile.setOrigin(0.5, newOriginY);
+
+  //   // Create aesthetic image
+  //   tile.aestheticImage = this.add
+  //     .image(tile.x, tile.y - tile.displayHeight / 2, "beats222_2")
+  //     .setOrigin(0.5, 0.5)
+  //     .setDepth(tile.depth + 1);
+
+  //   let initialHeight = tile.displayHeight;
+  //   let clicked = false;
+  //   let tween = null;
+
+  //   tile.on("pointerdown", () => {
+  //     tile.held = true;
+  //     tile.stopLerp = true; // Add this line to stop the lerp
+
+  //     tween = this.tweens.add({
+  //       targets: [tile, tile.aestheticImage],
+  //       scaleY: 1,
+  //       ease: "Linear",
+  //       duration: duration * 1000,
+  //       onUpdate: () => {
+  //         this.updateHeldTilePosition(tile);
+  //       },
+  //       onComplete: () => {
+  //         if (!clicked) {
+  //           clicked = true;
+  //           this.onClickInstrument(tile, false, true);
+  //         }
+  //       },
+  //     });
+  //   });
+
+  //   tile.on("pointerup", () => {
+  //     tile.held = false;
+  //     tile.stopLerp = false; // Add this line to resume the lerp
+  //     if (tween && tween.progress < 1) {
+  //       tween.stop();
+  //       if (!clicked) {
+  //         clicked = true;
+  //         this.onClickInstrument(tile, false, true);
+  //       }
+  //     }
+  //   });
+
+  //   // Add cleanup method
+  //   tile.cleanup = () => {
+  //     if (tile.aestheticImage) {
+  //       tile.aestheticImage.destroy();
+  //     }
+  //   };
+  // }
   handleHeldTile(tile, duration) {
-    let heldTileScaleFactor = this.calculateHeldTileScaleFactor(
-      duration,
-      this.tileDuration
+    let heldTileScaleFactor = this.calculateHeldTileScaleFactor(duration, this.tileDuration);
+    let initialHeight = heldTileScaleFactor * duration * tile.height;
+  
+    // Create base nineslice tile with larger top/bottom areas
+    let ninesliceTile = this.add.nineslice(
+      tile.x,
+      0, // x, y
+      "new_held", // You'll need to make sure this texture exists in your dev version
+      null,
+      tile.width,
+      initialHeight,
+      20, 20, 50, 50 // Slice parameters - adjust these based on your texture
     );
-    let initialScaleY = heldTileScaleFactor * duration;
-
-    tile.setScale(1, initialScaleY);
-
-    let originalHeight = tile.height;
-    let scaledHeight = tile.displayHeight;
-    let originalOriginY = tile.originY;
-
-    let newOriginY = (originalOriginY * originalHeight) / scaledHeight;
-    newOriginY = 1 - newOriginY;
-    tile.setOrigin(0.5, newOriginY);
-
-    // Create aesthetic image
-    tile.aestheticImage = this.add
-      .image(tile.x, tile.y - tile.displayHeight / 2, "beats222_2")
-      .setOrigin(0.5, 0.5)
-      .setDepth(tile.depth + 1);
-
-    let initialHeight = tile.displayHeight;
+  
+    ninesliceTile.setOrigin(0.5, 1);
+  
+    // Set properties
+    ninesliceTile.start = tile.start;
+    ninesliceTile.duration = duration;
+    ninesliceTile.initialHeight = initialHeight;
+    ninesliceTile.setDepth(2.8);
+    ninesliceTile.tileType = "held";
+  
+    // Variables to track hold duration
+    ninesliceTile.holdStartTime = 0;
+    ninesliceTile.holdDuration = 0;
+    ninesliceTile.totalDuration = duration * 1000; // Convert to milliseconds
+  
+    // Replace the original tile with the nineslice tile in the tileGroup
+    this.tileGroup.remove(tile);
+    this.tileGroup.add(ninesliceTile);
+  
+    // Clean up original tile and its aesthetic image if it exists
+    if (tile.aestheticImage) {
+      tile.aestheticImage.destroy();
+    }
+    tile.destroy();
+  
     let clicked = false;
     let tween = null;
-
-    tile.on("pointerdown", () => {
-      tile.held = true;
-      tile.stopLerp = true; // Add this line to stop the lerp
-
+    let activeEffect = null;
+  
+    ninesliceTile.setInteractive();
+  
+    ninesliceTile.on("pointerdown", () => {
+      // Fix: Ignore additional touches if already being held
+      if (ninesliceTile.held) {
+        return;
+      }
+  
+      ninesliceTile.held = true;
+      ninesliceTile.holdStartTime = this.time.now; // Record start time
+  
+      if (tween) {
+        tween.stop();
+      }
+  
+      // Create active effect for held tile using nineslice
+      activeEffect = this.add.nineslice(
+        ninesliceTile.x,
+        ninesliceTile.y,
+        "tile_active", // Make sure this texture exists and is nineslice-compatible
+        null,
+        ninesliceTile.width,
+        ninesliceTile.height,
+        20, 20, 50, 50 // Match the slice parameters
+      );
+  
+      activeEffect.setOrigin(0.5, 1);
+      activeEffect.setDepth(ninesliceTile.depth + 0.1); // Place in front with higher depth
+      ninesliceTile.activeEffect = activeEffect;
+  
+      // Create a single tween that targets both objects to keep them in sync
       tween = this.tweens.add({
-        targets: [tile, tile.aestheticImage],
-        scaleY: 1,
+        targets: [ninesliceTile, activeEffect],
+        height: ninesliceTile.height / heldTileScaleFactor,
         ease: "Linear",
         duration: duration * 1000,
-        onUpdate: () => {
-          this.updateHeldTilePosition(tile);
-        },
         onComplete: () => {
           if (!clicked) {
+            // Hide the original nineslice
+            ninesliceTile.setVisible(false);
+  
+            // Calculate particle position (at the bottom of the held tile)
+            const particleY = ninesliceTile.y - ninesliceTile.height / 2;
+  
+            // Trigger particle effect (if you have it in dev version)
+            if (this.tileEmitter) {
+              this.tileEmitter.setPosition(ninesliceTile.x, particleY);
+              this.tileEmitter.explode(10);
+            }
+  
+            // Also trigger active flash
+            this.tileActiveFlash(ninesliceTile, false);
+  
+            // Perfect hold - held for full duration
+            ninesliceTile.holdDuration = ninesliceTile.totalDuration;
+            ninesliceTile.holdPercentage = 1.0;
+  
             clicked = true;
-            this.onClickInstrument(tile, false, true);
+            this.onClickInstrument(ninesliceTile, false, true);
           }
         },
       });
     });
-
-    tile.on("pointerup", () => {
-      tile.held = false;
-      tile.stopLerp = false; // Add this line to resume the lerp
-      if (tween && tween.progress < 1) {
-        tween.stop();
-        if (!clicked) {
-          clicked = true;
-          this.onClickInstrument(tile, false, true);
-        }
+  
+    ninesliceTile.on("pointerup", () => {
+      // Calculate how long the user held the tile
+      if (ninesliceTile.holdStartTime > 0) {
+        ninesliceTile.holdDuration = this.time.now - ninesliceTile.holdStartTime;
+        ninesliceTile.holdPercentage = Math.min(
+          ninesliceTile.holdDuration / ninesliceTile.totalDuration,
+          1.0
+        );
+      }
+  
+      // Hide the original nineslice
+      ninesliceTile.setVisible(false);
+  
+      // Calculate particle position (halfway up the current height)
+      const currentHeight = ninesliceTile.height;
+      const particleY = ninesliceTile.y - currentHeight / 2;
+  
+      // Trigger particle effect at the calculated position (if you have it in dev version)
+      if (this.tileEmitter) {
+        this.tileEmitter.setPosition(ninesliceTile.x, particleY);
+        this.tileEmitter.explode(10);
+      }
+  
+      // Also trigger the tile active flash effect for visual feedback
+      this.tileActiveFlash(ninesliceTile, false);
+  
+      // First stop the tween
+      if (tween) {
+        tween.remove(); // Use remove instead of stop to fully clean up
+        tween = null;
+      }
+  
+      // Then handle the click logic
+      if (!clicked) {
+        clicked = true;
+        this.onClickInstrument(ninesliceTile, false, true);
+      }
+  
+      // Then clean up the active effect
+      if (activeEffect && activeEffect.active) {
+        activeEffect.destroy();
+        activeEffect = null;
       }
     });
-
-    // Add cleanup method
-    tile.cleanup = () => {
-      if (tile.aestheticImage) {
-        tile.aestheticImage.destroy();
+  
+    // Handle cleanup
+    ninesliceTile.on("destroy", () => {
+      if (tween) {
+        tween.remove(); // Use remove instead of stop
+        tween = null;
+      }
+  
+      if (activeEffect && activeEffect.active) {
+        activeEffect.destroy();
+        activeEffect = null;
+      }
+    });
+  
+    // Add cleanup method for compatibility
+    ninesliceTile.cleanup = () => {
+      if (activeEffect && activeEffect.active) {
+        activeEffect.destroy();
+        activeEffect = null;
       }
     };
   }
