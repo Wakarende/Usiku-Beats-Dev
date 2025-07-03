@@ -441,6 +441,8 @@ class Level extends Phaser.Scene {
 
     // console.log(this.midi.track[0].notes);
     this.lineMarkers = [];
+    this.isTimelineScrubbing = false;
+    this.totalSongDuration = 0;
 
     if (this.sound.locked) {
       this.sound.unlock();
@@ -473,6 +475,8 @@ class Level extends Phaser.Scene {
             leftovers.map(o => ({ key:o.texture.key, x:o.x, y:o.y }))
           );
       }
+      
+
   });
   
     console.log("Level.js create()");
@@ -565,6 +569,12 @@ class Level extends Phaser.Scene {
 
     this.totalTiles = this.soundMarkers.length;
     this.streakThreshold = 10;
+
+    this.originalSoundMarkers = [...this.soundMarkers];
+this.originalLineMarkers = [...this.lineMarkers];
+this.originalPulseBeats = [...this.pulseBeats];
+this.originalF2Beats = [...this.f2Beats];
+
     this.baseScore =
       this.maxSongScore /
       ((this.streakThreshold * (this.streakThreshold + 1)) / 2 +
@@ -674,7 +684,7 @@ class Level extends Phaser.Scene {
     this.waveTextureRight = this.textures.get("waveTextureRight");
     this.waveCtxRight = this.waveTextureRight.getContext();
 
-    this.drawWaveToCanvas(); // initial render
+    this.drawWaveToCanvas();// initial render
 
     this.waveSprite = this.add
       .image(this.dividerX, 0, "waveTexture")
@@ -707,7 +717,7 @@ class Level extends Phaser.Scene {
     this.lastF2Pulse = -999;
 
     this.tileEmitter = this.add
-  .particles(0, 0, "particle", {  // Note: your dev uses "particle", prod uses "particle_1"
+  .particles(0, 0, "particle", { 
     speed: { min: 50, max: 250 },
     angle: { min: 0, max: 360 },
     scale: { start: 1.2, end: 0 },
@@ -724,7 +734,71 @@ class Level extends Phaser.Scene {
     "Tile 3",
     "Tile 4"
   ];
+  this.cursors = this.input.keyboard.createCursorKeys();
+
+
+
+this.isRewinding = false;
+this.isFastForwarding = false;
+
+this.input.keyboard.on('keydown-LEFT', (event) => {
+  event.preventDefault();
+  if (!this.isRewinding) {
+    this.isRewinding = true;
+    this.rewindTimer = this.time.addEvent({
+      delay: 200, // Repeat every 200ms
+      callback: () => this.rewind(1),
+      loop: true
+    });
+    this.rewind(1); 
   }
+});
+
+
+// Progress/Seek Bar - add after your existing UI setup
+this.createProgressBar();
+
+this.input.keyboard.on('keyup-LEFT', () => {
+  this.isRewinding = false;
+  if (this.rewindTimer) {
+    this.rewindTimer.destroy();
+    this.rewindTimer = null;
+  }
+});
+
+this.input.keyboard.on('keydown-RIGHT', (event) => {
+  event.preventDefault();
+  if (!this.isFastForwarding) {
+    this.isFastForwarding = true;
+    this.fastForwardTimer = this.time.addEvent({
+      delay: 200, // Repeat every 200ms
+      callback: () => this.fastForward(1),
+      loop: true
+    });
+    this.fastForward(1); // First fast-forward immediately
+  }
+});
+
+this.input.keyboard.on('keyup-RIGHT', () => {
+  this.isFastForwarding = false;
+  if (this.fastForwardTimer) {
+    this.fastForwardTimer.destroy();
+    this.fastForwardTimer = null;
+  }
+});
+
+this.input.keyboard.on('keydown-SPACE', (event) => {
+  event.preventDefault();
+  this.togglePlayPause();
+});
+
+
+this.input.keyboard.on('keydown-UP', () => this.seekToTime(0));
+  }
+
+  
+
+
 
   createLineGroup() {
     this.lineGroup = this.add.group();
@@ -861,6 +935,232 @@ class Level extends Phaser.Scene {
     texture.refresh();
   }
 
+  createProgressBar() {
+    // Only create if it doesn't exist
+    if (this.progressBarCreated) return;
+    this.progressBarCreated = true;
+    
+    const barY = this.screenHeight - 30; // Much lower - 30px from bottom
+    const barWidth = this.screenWidth - 60;
+    const barHeight = 8;
+    const barX = 30;
+    
+    console.log(`Creating progress bar: x=${barX}, y=${barY}, width=${barWidth}`);
+    
+    // Store bar properties
+    this.progressBar = {
+      x: barX,
+      y: barY,
+      width: barWidth,
+      height: barHeight,
+      isDragging: false,
+      wasPlaying: false
+    };
+    
+    // Make the entire bar area tappable for quick seeking
+    this.progressBarArea = this.add.rectangle(barX - 10, barY, barWidth + 20, 30, 0x000000)
+      .setOrigin(0, 0.5)
+      .setAlpha(0) // Invisible but interactive
+      .setInteractive()
+      .setDepth(99); // Lower depth so it doesn't interfere with gameplay
+    
+    // Background bar  
+    this.progressBarBg = this.add.rectangle(barX, barY, barWidth, barHeight, 0x333333)
+      .setOrigin(0, 0.5)
+      .setDepth(100);
+    
+    // Progress fill
+    this.progressBarFill = this.add.rectangle(barX, barY, 0, barHeight, 0x1ba6b1)
+      .setOrigin(0, 0.5)
+      .setDepth(101);
+    
+    // Handle
+    this.progressHandle = this.add.circle(barX, barY, 12, 0xfcb320)
+      .setDepth(102)
+      .setInteractive({ draggable: true })
+      .setAlpha(0.9);
+  
+    // Quick skip buttons
+    this.skipBackBtn = this.add.circle(barX - 25, barY, 8, 0x666666)
+      .setInteractive()
+      .setDepth(102);
+    
+    this.skipForwardBtn = this.add.circle(barX + barWidth + 25, barY, 8, 0x666666)
+      .setInteractive()
+      .setDepth(102);
+    
+    // Add skip button labels
+    this.add.text(barX - 25, barY, "-5", {fontSize: "8px", fill: "#fff"})
+      .setOrigin(0.5).setDepth(103);
+    this.add.text(barX + barWidth + 25, barY, "+5", {fontSize: "8px", fill: "#fff"})
+      .setOrigin(0.5).setDepth(103);
+  
+    // === DRAG EVENTS ===
+    this.progressHandle.on('dragstart', (pointer) => {
+      console.log('Drag started');
+      this.progressBar.isDragging = true;
+      this.progressBar.wasPlaying = this.music?.isPlaying || false;
+      
+      if (this.music && this.music.isPlaying) {
+        this.music.pause();
+      }
+      
+      this.progressHandle.setAlpha(1);
+      this.progressHandle.setScale(1.2);
+    });
+    
+    this.progressHandle.on('drag', (pointer) => {
+      if (!this.progressBar.isDragging) return;
+      
+      const localX = pointer.x - this.progressBar.x;
+      const clampedX = Phaser.Math.Clamp(localX, 0, this.progressBar.width);
+      
+      this.progressHandle.setX(this.progressBar.x + clampedX);
+      this.progressBarFill.setSize(clampedX, this.progressBar.height);
+      
+      const progress = clampedX / this.progressBar.width;
+      const targetTime = progress * (this.totalSongDuration || 120);
+      
+      this.showTimePreview(targetTime, this.progressHandle.x);
+    });
+    
+    this.progressHandle.on('dragend', (pointer) => {
+      console.log('Drag ended');
+      this.progressBar.isDragging = false;
+      this.progressHandle.setAlpha(0.9);
+      this.progressHandle.setScale(1);
+      
+      const localX = pointer.x - this.progressBar.x;
+      const clampedX = Phaser.Math.Clamp(localX, 0, this.progressBar.width);
+      const progress = clampedX / this.progressBar.width;
+      const targetTime = progress * (this.totalSongDuration || 120);
+      
+      this.seekToTime(targetTime);
+      
+      if (this.progressBar.wasPlaying && this.music) {
+        this.time.delayedCall(100, () => {
+          if (this.music) this.music.resume();
+        });
+      }
+      
+      this.hideTimePreview();
+    });
+  
+    // === TAP TO SEEK ===
+    this.progressBarArea.on('pointerdown', (pointer) => {
+      if (this.progressBar.isDragging) return;
+      
+      const localX = pointer.x - this.progressBar.x;
+      if (localX < -15 || localX > this.progressBar.width + 15) return;
+      
+      const clampedX = Phaser.Math.Clamp(localX, 0, this.progressBar.width);
+      const progress = clampedX / this.progressBar.width;
+      const targetTime = progress * (this.totalSongDuration || 120);
+      
+      console.log(`Tap seek to: ${targetTime.toFixed(2)}s`);
+      this.seekToTime(targetTime);
+    });
+  
+    // === SKIP BUTTON EVENTS ===
+    this.skipBackBtn.on('pointerdown', () => {
+      console.log('Skip back 5s');
+      this.rewind(5);
+    });
+    
+    this.skipForwardBtn.on('pointerdown', () => {
+      console.log('Skip forward 5s');
+      this.fastForward(5);
+    });
+  }
+
+  // Show time preview while dragging
+  showTimePreview(time, x) {
+    if (!this.timePreview) {
+      this.timePreview = this.add.text(x, this.progressBar.y - 35, "", {
+        fontFamily: "Arial",
+        fontSize: "14px",
+        fill: "#ffffff",
+        backgroundColor: "#000000",
+        padding: { x: 8, y: 4 }
+      }).setOrigin(0.5, 0.5).setDepth(204);
+    }
+    
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    this.timePreview.setText(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+    this.timePreview.setX(x);
+    this.timePreview.setVisible(true);
+  }
+  
+  hideTimePreview() {
+    if (this.timePreview) {
+      this.timePreview.setVisible(false);
+    }
+  }
+  
+  // Updated progress bar update method
+  updateProgressBar() {
+    // Don't update position if user is dragging
+    if (!this.progressBar || this.progressBar.isDragging || !this.music) {
+      return;
+    }
+    
+    const currentTime = this.music.seek || 0;
+    const duration = this.totalSongDuration || 120;
+    const progress = Math.min(currentTime / duration, 1);
+    
+    // Update fill width
+    const fillWidth = progress * this.progressBar.width;
+    this.progressBarFill.setSize(fillWidth, this.progressBar.height);
+    
+    // Update handle position
+    const handleX = this.progressBar.x + fillWidth;
+    this.progressHandle.setX(handleX);
+  }
+  
+  
+  showTimePreview(time, x) {
+    if (!this.timePreview) {
+      this.timePreview = this.add.text(x, this.progressBar.y - 30, "", {
+        fontFamily: "Arial",
+        fontSize: "12px",
+        fill: "#ffffff",
+        backgroundColor: "#000000",
+        padding: { x: 8, y: 4 }
+      }).setOrigin(0.5, 0.5).setDepth(203);
+    }
+    
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    this.timePreview.setText(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+    this.timePreview.setX(x);
+    this.timePreview.setVisible(true);
+  }
+  
+  hideTimePreview() {
+    if (this.timePreview) {
+      this.timePreview.setVisible(false);
+    }
+  }
+  
+  // Update progress bar during playback
+  updateProgressBar() {
+    if (!this.progressBar || this.progressBar.isDragging || !this.music) {
+      return;
+    }
+    
+    const currentTime = this.music.seek || 0;
+    const duration = this.totalSongDuration || 120; // Fallback duration
+    const progress = Math.min(currentTime / duration, 1);
+    
+    // Update fill width
+    const fillWidth = progress * this.progressBar.width;
+    this.progressBarFill.setSize(fillWidth, this.progressBar.height);
+    
+    // Update handle position
+    const handleX = this.progressBar.x + fillWidth;
+    this.progressHandle.setX(handleX);
+  }
   updateWaveLogic(seek, delta) {
     // If the music isn’t started or seek < 0, nothing to do
     if (seek < 0) return;
@@ -1015,6 +1315,9 @@ class Level extends Phaser.Scene {
     this.updateWhiteLines(seek);
 
     this.updateWaveLogic(seek, delta);
+    this.updateProgressBar();
+
+    
 
     if (seek >= 0) {
       if (
@@ -1044,6 +1347,9 @@ class Level extends Phaser.Scene {
         }
       });
     }
+
+ 
+    
 
   }
 
@@ -1232,73 +1538,7 @@ class Level extends Phaser.Scene {
     return heldTileScaleFactor;
   }
 
-  // handleHeldTile(tile, duration) {
-  //   let heldTileScaleFactor = this.calculateHeldTileScaleFactor(
-  //     duration,
-  //     this.tileDuration
-  //   );
-  //   let initialScaleY = heldTileScaleFactor * duration;
-
-  //   tile.setScale(1, initialScaleY);
-
-  //   let originalHeight = tile.height;
-  //   let scaledHeight = tile.displayHeight;
-  //   let originalOriginY = tile.originY;
-
-  //   let newOriginY = (originalOriginY * originalHeight) / scaledHeight;
-  //   newOriginY = 1 - newOriginY;
-  //   tile.setOrigin(0.5, newOriginY);
-
-  //   // Create aesthetic image
-  //   tile.aestheticImage = this.add
-  //     .image(tile.x, tile.y - tile.displayHeight / 2, "beats222_2")
-  //     .setOrigin(0.5, 0.5)
-  //     .setDepth(tile.depth + 1);
-
-  //   let initialHeight = tile.displayHeight;
-  //   let clicked = false;
-  //   let tween = null;
-
-  //   tile.on("pointerdown", () => {
-  //     tile.held = true;
-  //     tile.stopLerp = true; // Add this line to stop the lerp
-
-  //     tween = this.tweens.add({
-  //       targets: [tile, tile.aestheticImage],
-  //       scaleY: 1,
-  //       ease: "Linear",
-  //       duration: duration * 1000,
-  //       onUpdate: () => {
-  //         this.updateHeldTilePosition(tile);
-  //       },
-  //       onComplete: () => {
-  //         if (!clicked) {
-  //           clicked = true;
-  //           this.onClickInstrument(tile, false, true);
-  //         }
-  //       },
-  //     });
-  //   });
-
-  //   tile.on("pointerup", () => {
-  //     tile.held = false;
-  //     tile.stopLerp = false; // Add this line to resume the lerp
-  //     if (tween && tween.progress < 1) {
-  //       tween.stop();
-  //       if (!clicked) {
-  //         clicked = true;
-  //         this.onClickInstrument(tile, false, true);
-  //       }
-  //     }
-  //   });
-
-  //   // Add cleanup method
-  //   tile.cleanup = () => {
-  //     if (tile.aestheticImage) {
-  //       tile.aestheticImage.destroy();
-  //     }
-  //   };
-  // }
+ 
   handleHeldTile(tile, duration) {
     let heldTileScaleFactor = this.calculateHeldTileScaleFactor(duration, this.tileDuration);
     let initialHeight = heldTileScaleFactor * duration * tile.height;
@@ -1473,13 +1713,9 @@ class Level extends Phaser.Scene {
     };
   }
   updateHeldTilePosition(tile) {
-    // if (tile.held) {
-    //   // If the tile is being held, we don't need to update its position
-    //   // as it's handled by the tween in handleHeldTile
-    //   return;
-    // }
+   
 
-    // For tiles that aren't currently held, update as before
+  
     let tileY = Phaser.Math.Linear(
       0,
       this.screenHeight * this.tileTarget,
@@ -1488,10 +1724,10 @@ class Level extends Phaser.Scene {
     tile.setY(tileY);
 
     if (tile.aestheticImage) {
-      // Position the aesthetic image above the tile
+     
       tile.aestheticImage.setPosition(tile.x, tile.y - tile.displayHeight / 3);
-      tile.aestheticImage.setScale(tile.scaleX, 1); // Keep the width scale, but set height scale to 1
-      tile.aestheticImage.setAlpha(tile.alpha); // Match the alpha of the tile
+      tile.aestheticImage.setScale(tile.scaleX, 1);
+      tile.aestheticImage.setAlpha(tile.alpha);
     }
   }
 
@@ -1506,20 +1742,56 @@ class Level extends Phaser.Scene {
     this.tileGroup = this.physics.add.staticGroup();
   }
 
+  // createMusic() {
+  //   this.music = this.sound.add(`${this.songItem}`, { volume: 1 });
+
+  //   this.music.play({ delay: 0.5 });
+  
+  //   this.music.once('play', () => {
+  //     this.totalSongDuration = this.music.duration || 0;
+  //     console.log(`Total song duration: ${this.totalSongDuration}s`);
+  //   });
+
+  //   this.music.on("play", () => {
+  //     this.isSoundPlaying = true;
+
+  //     this.lineGroup.getChildren().forEach((line) => {
+  //       line.setVisible(true);
+  //     });
+  //   });
+
+  //   this.music.on("complete", () => {
+  //     this.songComplete();
+  //   });
+    
+  // }
   createMusic() {
     this.music = this.sound.add(`${this.songItem}`, { volume: 1 });
-
+  
     this.music.play({ delay: 0.5 });
-    // this.music.play()ŸŸ
-
+  
+    // Try multiple ways to get duration
+    this.music.once('play', () => {
+      // Try to get duration from multiple sources
+      this.totalSongDuration = this.music.duration || this.music.totalDuration || 0;
+      console.log(`Total song duration: ${this.totalSongDuration}s`);
+      
+      // If still 0, try again after a short delay
+      if (this.totalSongDuration === 0) {
+        this.time.delayedCall(100, () => {
+          this.totalSongDuration = this.music.duration || this.music.totalDuration || 0;
+          console.log(`Total song duration (retry): ${this.totalSongDuration}s`);
+        });
+      }
+    });
+  
     this.music.on("play", () => {
       this.isSoundPlaying = true;
-
       this.lineGroup.getChildren().forEach((line) => {
         line.setVisible(true);
       });
     });
-
+  
     this.music.on("complete", () => {
       this.songComplete();
     });
@@ -1582,7 +1854,7 @@ class Level extends Phaser.Scene {
         ...tweenConfig,
       });
     } else if (swipe.down && swipe.right) {
-      // Down-right diagonal swipe
+      
       tile.angle += 45;
       this.tweens.add({
         targets: tile,
@@ -1591,7 +1863,7 @@ class Level extends Phaser.Scene {
         ...tweenConfig,
       });
     } else if (swipe.down && swipe.left) {
-      // Down-left diagonal swipe
+      
       tile.angle += 135;
       this.tweens.add({
         targets: tile,
@@ -1995,6 +2267,104 @@ class Level extends Phaser.Scene {
     }
     return array;
   }
+// NEW: Seek to specific time
+seekToTime(targetTime) {
+  if (!this.music || targetTime < 0) return;
+  
+  console.log(`Seeking to ${targetTime.toFixed(2)}s`);
+  
+  const wasPlaying = this.music.isPlaying;
+  
+  if (wasPlaying) {
+    this.music.pause();
+  }
+  
+  this.resetForSeek();
+  
+  // Don't limit by totalSongDuration if it's 0 or unreliable
+  if (this.totalSongDuration > 0) {
+    this.music.seek = Math.max(0, Math.min(targetTime, this.totalSongDuration));
+  } else {
+    // If totalSongDuration is 0 or unknown, just seek to the target time
+    this.music.seek = Math.max(0, targetTime);
+  }
+  
+  this.rebuildStateToTime(targetTime);
+  
+  if (wasPlaying) {
+    this.music.resume();
+  }
+}
+
+// NEW: Reset game state for seeking
+resetForSeek() {
+  if (this.tileGroup) {
+    this.tileGroup.clear(true, true);
+  }
+  
+  if (this.lineGroup) {
+    this.lineGroup.clear(true, true);
+  }
+  
+  this.soundMarkers = [...this.originalSoundMarkers];
+  this.lineMarkers = [...this.originalLineMarkers];
+  this.pulseBeats = [...this.originalPulseBeats];
+  this.f2Beats = [...this.originalF2Beats];
+  
+  this.lastDividerPulse = null;
+  this.lastF2Pulse = -999;
+  this.dividerPulseAmplitudeLeft = 0;
+  this.dividerPulseAmplitudeRight = 0;
+}
+
+// NEW: Rebuild state to target time
+rebuildStateToTime(targetTime) {
+  this.soundMarkers = this.soundMarkers.filter(marker => 
+    marker.start > targetTime - this.tileDuration
+  );
+  
+  this.lineMarkers = this.lineMarkers.filter(marker => 
+    marker.start > targetTime - this.lineDuration
+  );
+}
+
+// NEW: Rewind by seconds
+rewind(seconds) {
+  if (!this.music) {
+    console.log("No music object for rewind");
+    return;
+  }
+  const currentSeek = this.music.seek || 0;
+  const targetTime = Math.max(0, currentSeek - seconds);
+  console.log(`Rewinding from ${currentSeek.toFixed(2)}s to ${targetTime.toFixed(2)}s`);
+  this.seekToTime(targetTime);
+}
+
+// NEW: Fast forward by seconds (without duration limit)
+fastForward(seconds) {
+  if (!this.music) {
+    console.log("No music object for fast forward");
+    return;
+  }
+  const currentSeek = this.music.seek || 0;
+  const targetTime = currentSeek + seconds;
+  console.log(`Fast forwarding from ${currentSeek.toFixed(2)}s to ${targetTime.toFixed(2)}s`);
+  this.seekToTime(targetTime);
+}
+
+// NEW: Fast forward by seconds
+
+
+// NEW: Toggle play/pause
+togglePlayPause() {
+  if (!this.music) return;
+  
+  if (this.music.isPlaying) {
+    this.music.pause();
+  } else {
+    this.music.resume();
+  }
+}
 
   /* END-USER-CODE */
 }
